@@ -1,15 +1,25 @@
 import {useEffect, useState} from "react";
 import {MultiDirectedGraph} from "graphology";
 import cytoscape from "cytoscape/dist/cytoscape.esm";
+import FileSaver from "file-saver"
 
 import "./GraphCanvas.css"
 
-import "./CanvasButtons"
 import CanvasButtons from "./CanvasButtons";
 
 export default function GraphCanvas(props) {
 
 	const [graph, setGraph] = useState(new MultiDirectedGraph())
+
+
+/*
+  ____      _
+ / ___|   _| |_ ___  ___  ___ __ _ _ __   ___
+| |  | | | | __/ _ \/ __|/ __/ _` | '_ \ / _ \
+| |__| |_| | || (_) \__ \ (_| (_| | |_) |  __/
+ \____\__, |\__\___/|___/\___\__,_| .__/ \___|
+      |___/                       |_|
+ */
 
 	const layoutOptions = {
 		name: 'breadthfirst',
@@ -99,9 +109,24 @@ export default function GraphCanvas(props) {
 		}
 	})
 
+
+/*
+ _   _                 _ _
+| | | | __ _ _ __   __| | | ___ _ __ ___
+| |_| |/ _` | '_ \ / _` | |/ _ \ '__/ __|
+|  _  | (_| | | | | (_| | |  __/ |  \__ \
+|_| |_|\__,_|_| |_|\__,_|_|\___|_|  |___/
+ */
+
+	function handleScreenshot(e) {
+		const d = new Date()
+		FileSaver.saveAs(cy.png({
+			output: 'blob'
+		}),  `RFR_${d.getDate()}/${d.getMonth()}/${d.getFullYear()}-${d.getHours()}:${d.getMinutes()}`)
+	}
+
 	// because the basic zoom depends on the initial layout: a fixed value can be too much
 	let zoomRatioBtn
-
 	function handleZoom(e) {
 		if (e.target.textContent === "add")
 			cy.zoom({
@@ -121,6 +146,15 @@ export default function GraphCanvas(props) {
 				}
 			})
 	}
+
+
+/*
+ _   _             _
+| | | | ___   ___ | | _____
+| |_| |/ _ \ / _ \| |/ / __|
+|  _  | (_) | (_) |   <\__ \
+|_| |_|\___/ \___/|_|\_\___/
+ */
 
 	useEffect(() => {
 		graph.clear()
@@ -193,7 +227,7 @@ export default function GraphCanvas(props) {
 
 				<ul>
 					<li><CanvasButtons icon="search" type=""/></li>
-					<li><CanvasButtons icon="photo_camera" type="button"/></li>
+					<li><CanvasButtons icon="photo_camera" type="button" callback={handleScreenshot}/></li>
 					<li><CanvasButtons icon="add" type="button" callback={handleZoom}/></li>
 					<li><CanvasButtons icon="remove" type="button" callback={handleZoom}/></li>
 				</ul>
