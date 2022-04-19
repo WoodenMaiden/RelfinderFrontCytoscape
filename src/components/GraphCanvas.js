@@ -4,6 +4,9 @@ import cytoscape from "cytoscape/dist/cytoscape.esm";
 
 import "./GraphCanvas.css"
 
+import "./CanvasButtons"
+import CanvasButtons from "./CanvasButtons";
+
 export default function GraphCanvas(props) {
 
 	const [graph, setGraph] = useState(new MultiDirectedGraph())
@@ -96,7 +99,28 @@ export default function GraphCanvas(props) {
 		}
 	})
 
+	// because the basic zoom depends on the initial layout: a fixed value can be too much
+	let zoomRatioBtn
 
+	function handleZoom(e) {
+		if (e.target.textContent === "add")
+			cy.zoom({
+				level: cy.zoom() + zoomRatioBtn,
+				position: {
+					x: cy.pan().x/2,
+					y: cy.pan().y/2
+				}
+			})
+
+		if (e.target.textContent === "remove")
+			cy.zoom({
+				level: cy.zoom() - zoomRatioBtn,
+				position: {
+					x: cy.pan().x/2,
+					y: cy.pan().y/2
+				}
+			})
+	}
 
 	useEffect(() => {
 		graph.clear()
@@ -156,6 +180,7 @@ export default function GraphCanvas(props) {
 			})
 			cy.ready(() => {
 				cy.layout(layoutOptions).run()
+				zoomRatioBtn = cy.zoom() / 2
 			})
 		}))
 
@@ -166,6 +191,12 @@ export default function GraphCanvas(props) {
 		<div id="GraphCanvas">
 			<div id="cyroot">
 
+				<ul>
+					<li><CanvasButtons icon="search" type=""/></li>
+					<li><CanvasButtons icon="photo_camera" type="button"/></li>
+					<li><CanvasButtons icon="add" type="button" callback={handleZoom}/></li>
+					<li><CanvasButtons icon="remove" type="button" callback={handleZoom}/></li>
+				</ul>
 			</div>
 		</div>
 	)
