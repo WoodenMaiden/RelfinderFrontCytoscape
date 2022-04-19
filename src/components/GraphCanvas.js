@@ -25,7 +25,7 @@ export default function GraphCanvas(props) {
 		name: 'breadthfirst',
 
 		ready: function () {},
-		stop: function () {},
+		stop: function () {}
 	}
 
 	const cy = cytoscape({
@@ -82,12 +82,12 @@ export default function GraphCanvas(props) {
 		motionBlur: false,
 		motionBlurOpacity: 0.2,
 		wheelSensitivity: 0.3,
-		pixelRatio: 'auto',
+		pixelRatio: 'auto'
 	})
 
 
 	cy.on("mouseover", e => {
-		if (e.target !== cy && e.target.isNode()) {
+		if (!searchMode && e.target !== cy && e.target.isNode()) {
 			for (const elt of cy.elements()) {
 				if (e.target.neighborhood().includes(elt) || elt === e.target){
 					elt.style('label', elt.json().data.label);
@@ -100,7 +100,7 @@ export default function GraphCanvas(props) {
 	})
 
 	cy.on("mouseout", e => {
-		if (e.target !== cy) {
+		if (!searchMode && e.target !== cy) {
 			for (const elt of cy.elements()) {
 				elt.style('label', null)
 				elt.style('background-opacity', 1);
@@ -118,11 +118,50 @@ export default function GraphCanvas(props) {
 |_| |_|\__,_|_| |_|\__,_|_|\___|_|  |___/
  */
 
+	let searchMode = false
+	function handleSearch(e) {
+		e.preventDefault()
+
+		const inputElt = (e.target.tagName === "BUTTON")
+			? e.target.parentNode.children[0]
+			: e.target.parentNode.parentNode.children[0]
+		const input = inputElt.value.trim()
+
+		if (!input) return;
+
+		searchMode = !searchMode
+		const spanIcon = (e.target.tagName === "BUTTON")
+			? document.getElementById(e.target.children[0].id)
+			: document.getElementById(e.target.id);
+
+
+		(searchMode)? spanIcon.innerText = "clear" : spanIcon.innerText = "done"
+
+		if (searchMode) {
+			for (const elt of cy.elements()) {
+				if (cy.getElementById(input).neighborhood().includes(elt) || elt === cy.getElementById(input)) {
+					elt.style('label', elt.json().data.label);
+					continue
+				}
+				elt.style('background-opacity', 0.05);
+				elt.style('line-opacity', 0.05);
+			}
+		}
+		else {
+			inputElt.value = ""
+			for (const elt of cy.elements()) {
+				elt.style('label', null)
+				elt.style('background-opacity', 1);
+				elt.style('line-opacity', 1);
+			}
+		}
+	}
+
 	function handleScreenshot(e) {
 		const d = new Date()
 		FileSaver.saveAs(cy.png({
 			output: 'blob'
-		}),  `RFR_${d.getDate()}/${d.getMonth()}/${d.getFullYear()}-${d.getHours()}:${d.getMinutes()}`)
+		}), `RFR_${d.getDate()}/${d.getMonth()}/${d.getFullYear()}-${d.getHours()}:${d.getMinutes()}`)
 	}
 
 	// because the basic zoom depends on the initial layout: a fixed value can be too much
@@ -224,12 +263,11 @@ export default function GraphCanvas(props) {
 	return (
 		<div id="GraphCanvas">
 			<div id="cyroot">
-
 				<ul>
-					<li><CanvasButtons icon="search" type=""/></li>
-					<li><CanvasButtons icon="photo_camera" type="button" callback={handleScreenshot}/></li>
-					<li><CanvasButtons icon="add" type="button" callback={handleZoom}/></li>
-					<li><CanvasButtons icon="remove" type="button" callback={handleZoom}/></li>
+					<li><CanvasButtons icon="search" type="search" submitCallback={handleSearch}/></li>
+					<li><CanvasButtons icon="photo_camera" callback={handleScreenshot}/></li>
+					<li><CanvasButtons icon="add" callback={handleZoom}/></li>
+					<li><CanvasButtons icon="remove" callback={handleZoom}/></li>
 				</ul>
 			</div>
 		</div>

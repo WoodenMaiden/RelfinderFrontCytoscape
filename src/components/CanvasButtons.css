@@ -4,8 +4,15 @@
 
 .canvasbutton {
     background-color: #ffffff;
-    border-radius: 50%;
+    border-radius: 50px;
     padding: 10px;
     text-align: center;
     z-index: 666666;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.canvasbutton form {
+    text-align: center;
 }
