@@ -30,6 +30,13 @@ export default function GraphCanvas(props) {
 				style: {
 					'background-color': 'green'
 				}
+			},
+			{
+				selector: 'edge',
+				style: {
+					'curve-style': 'bezier',
+					'target-arrow-shape': 'triangle',
+				}
 			}
 		],
 
@@ -66,13 +73,29 @@ export default function GraphCanvas(props) {
 	})
 
 
-	cy.on("mouseover", e => (e.target !== cy && e.target.json().data.label)
-						? e.target.style('label', e.target.json().data.label)
-						: "")
+	cy.on("mouseover", e => {
+		if (e.target !== cy && e.target.isNode()) {
+			for (const elt of cy.elements()) {
+				if (e.target.neighborhood().includes(elt) || elt === e.target){
+					elt.style('label', elt.json().data.label);
+					continue
+				}
+				elt.style('background-opacity', 0.05);
+				elt.style('line-opacity', 0.05);
+			}
+		}
+	})
 
-	cy.on("mouseout", e => (e.target !== cy && e.target.json().data.label)
-						? e.target.style('label', null)
-						: "")
+	cy.on("mouseout", e => {
+		if (e.target !== cy) {
+			for (const elt of cy.elements()) {
+				elt.style('label', null)
+				elt.style('background-opacity', 1);
+				elt.style('line-opacity', 1);
+			}
+		}
+	})
+
 
 
 	useEffect(() => {
@@ -119,7 +142,6 @@ export default function GraphCanvas(props) {
 
 			graph.forEachDirectedEdge((edge, attributes, source, target,
 									  sourceAttributes, targetAttributes, undirected) => {
-
 				cy.add({
 					group: 'edges',
 					data: {
