@@ -20,13 +20,13 @@ export default function GraphCanvas(props) {
 		container: undefined,
 		style: [
 			{
-				selector: 'Entity',
+				selector: '.Entity',
 				style: {
 					'background-color': 'red'
 				}
 			},
 			{
-				selector: 'Literal',
+				selector: '.Literal',
 				style: {
 					'background-color': 'green'
 				}
@@ -61,9 +61,18 @@ export default function GraphCanvas(props) {
 		textureOnViewport: false,
 		motionBlur: false,
 		motionBlurOpacity: 0.2,
-		wheelSensitivity: 1,
+		wheelSensitivity: 0.3,
 		pixelRatio: 'auto',
 	})
+
+
+	cy.on("mouseover", e => (e.target !== cy && e.target.json().data.label)
+						? e.target.style('label', e.target.json().data.label)
+						: "")
+
+	cy.on("mouseout", e => (e.target !== cy && e.target.json().data.label)
+						? e.target.style('label', null)
+						: "")
 
 
 	useEffect(() => {
@@ -92,30 +101,39 @@ export default function GraphCanvas(props) {
 			graph.import(data);
 			cy.mount(document.getElementById("cyroot"))
 
-
 			//constructing graph
 			graph.forEachNode((node, attributes) => {
-				console.log((!node.match(/^.+:\/\/.*/ig)) ? 'Entity' : 'Literal')
 				cy.add({
 					group: 'nodes',
 					data: {
-						id: node
+						id: node,
+						label: node
 					},
 					selected: false,
 					selectable: true,
 					locked: false,
 					grabbable: true,
-					classes: (!node.match(/^.+:\/\/.*/ig)) ? ['Entity'] : ['Literal']
+					classes: (!node.match(/^.+:\/\/.*/ig)) ? ['Literal'] : ['Entity']
 				})
 			})
 
-			//TODO print edges and fix nodes coloration
+			graph.forEachDirectedEdge((edge, attributes, source, target,
+									  sourceAttributes, targetAttributes, undirected) => {
 
-			console.log("constructed!")
+				cy.add({
+					group: 'edges',
+					data: {
+						id: edge,
+						source: source,
+						target: target,
+						label: attributes.value
+					},
+					pannable: true
+				})
+
+			})
 			cy.ready(() => {
 				cy.layout(layoutOptions).run()
-				console.log(cy.nodes().size)
-				console.log("done! should be prompted")
 			})
 		}))
 
