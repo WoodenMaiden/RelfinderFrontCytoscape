@@ -1,0 +1,11 @@
+.material-icons-round {
+    vertical-align: middle;
+}
+
+.canvasbutton {
+    background-color: #ffffff;
+    border-radius: 50%;
+    padding: 10px;
+    text-align: center;
+    z-index: 666666;
+}
