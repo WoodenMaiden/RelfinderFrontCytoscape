@@ -1,3 +1,8 @@
+:root {
+  /*Variables*/
+  --primary: #5da211;
+}
+
 .App {
   background-color: #282c34;
   height: 100vh;
@@ -5,7 +10,7 @@
   margin: 0;
   padding: 0;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: #414755;

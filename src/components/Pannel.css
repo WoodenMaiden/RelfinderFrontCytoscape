@@ -1,0 +1,34 @@
+#hamburgerMenu {
+    height: 100%;
+    width: 20%;
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    left: 0;
+    top: 0;
+}
+
+#hamburgerMenu #hamburgerIcon{
+    background-color: var(--primary);
+    height: 30px;
+    border-radius: 0 50px 50px 0;
+}
+
+#hamburgerIcon span {
+    margin: 0 auto;
+    width: 100%;
+}
+
+#pannel {
+    height: 100%;
+    width: 90%;
+    background-color: var(--primary);
+    -webkit-transition: width 0.5s ease-in-out;
+    -moz-transition: width 0.5s ease-in-out;
+    -o-transition: width 0.5s ease-in-out;
+    transition: width 0.5s ease-in-out
+}
+
+#pannel * {
+    padding-left: 5px;
+}
