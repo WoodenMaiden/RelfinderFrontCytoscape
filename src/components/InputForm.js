@@ -1,25 +1,34 @@
+import React, { useState } from 'react';
+import ReactDOM  from 'react-dom';
+
+import InputEntry from './InputEntry';
+
 import './inputForm.css'
 
 export default function InputForm(props) {
     const MININPUT = 2
-    let input = MININPUT;
+    const [inputArray, setInputArray] = useState([1,2])
+
+    function rm(e) {
+        console.log(e)
+        if (inputArray.length <= MININPUT) return;
+        //TODO
+    }
+
+    function add(e) {
+        setInputArray(old => [ ...old, inputArray[inputArray.length - 1] + 1])
+        console.log(inputArray)
+    }
 
     return (
         <form id="rfrform">
             <div id="inputs">
-                <input type="search" id={`input${input-1}`} placeholder="URI or label"/>
-                <input type="search" id={`input${input}`} placeholder="URI or label"/>
+                {inputArray.map(item => <InputEntry key={item} input={item} rmHandler={rm}/>)}
             </div>
-            
-            <div id="controls">
-                <button type="button">
+            <div className="controls">
+                <button type="button" onClick={add}>
                     <span className="material-icons-round">
                         add
-                    </span>
-                </button>
-                <button type="button">
-                    <span className="material-icons-round">
-                        remove
                     </span>
                 </button>
                 <button type="reset">
