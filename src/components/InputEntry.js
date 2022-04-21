@@ -4,7 +4,7 @@ export default function InputEntry(props) {
 
     return (
         <div className="controls">
-            <input type="search" id={`input${input}`} placeholder="URI or label"/>
+            <input type="search" name={input} id={`input${input}`} placeholder="URI or label"/>
             <button className="clickable" type="button" id={`rm${input}`} onClick={rmHandler}>
                 <span className="material-icons-round">
                     close

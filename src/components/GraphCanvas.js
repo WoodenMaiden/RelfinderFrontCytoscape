@@ -1,4 +1,3 @@
-import {useEffect, useState} from "react";
 import {MultiDirectedGraph} from "graphology";
 import cytoscape from "cytoscape/dist/cytoscape.esm";
 import FileSaver from "file-saver"
@@ -8,8 +7,6 @@ import "./GraphCanvas.css"
 import CanvasButtons from "./CanvasButtons";
 
 export default function GraphCanvas(props) {
-
-	const [graph, setGraph] = useState(new MultiDirectedGraph())
 
 
 /*
@@ -21,6 +18,7 @@ export default function GraphCanvas(props) {
       |___/                       |_|
  */
 
+	cytoscape.warnings(false)
 	const layoutOptions = {
 		name: 'breadthfirst',
 
@@ -188,24 +186,22 @@ export default function GraphCanvas(props) {
 
 
 /*
- _   _             _
-| | | | ___   ___ | | _____
-| |_| |/ _ \ / _ \| |/ / __|
-|  _  | (_) | (_) |   <\__ \
-|_| |_|\___/ \___/|_|\_\___/
+ _ _   _   _             _          _ _
+( | ) | | | | ___   ___ | | _____  ( | )
+ V V  | |_| |/ _ \ / _ \| |/ / __|  V V
+      |  _  | (_) | (_) |   <\__ \
+      |_| |_|\___/ \___/|_|\_\___/
  */
 
-	useEffect(() => {
+	if (props.nodes.length >= 2) {
+		const graph = new MultiDirectedGraph()
+		cy.removeData()
 		graph.clear()
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
 
-		//SAMPLE DATA
 		const raw = JSON.stringify({
-			"nodes": [
-				"http://purl.obolibrary.org/obo/GO_0030599",
-				"http://purl.uniprot.org/uniprot/M7Y4A4"
-			]
+			"nodes": props.nodes
 		});
 
 		const requestOptions = {
@@ -256,9 +252,8 @@ export default function GraphCanvas(props) {
 				zoomRatioBtn = cy.zoom() / 2
 			})
 		}))
+	}
 
-
-	})
 
 	return (
 		<div id="GraphCanvas">

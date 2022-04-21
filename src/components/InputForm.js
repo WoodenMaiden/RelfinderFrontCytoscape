@@ -9,8 +9,19 @@ export default function InputForm(props) {
     const MININPUT = 2
     const [inputArray, setInputArray] = useState([1,2])
 
+    const submit = props.submitCallback.bind(this)
 
 
+    function add(e) {
+        setInputArray(old => [ ...old, inputArray[inputArray.length - 1] + 1])
+    }
+
+/*
+| | | | __ _ _ __   __| | | ___ _ __ ___
+| |_| |/ _` | '_ \ / _` | |/ _ \ '__/ __|
+|  _  | (_| | | | | (_| | |  __/ |  \__ \
+|_| |_|\__,_|_| |_|\__,_|_|\___|_|  |___/
+*/
     function rm(e) {
         if (inputArray.length <= MININPUT) return;
 
@@ -20,14 +31,10 @@ export default function InputForm(props) {
         setInputArray(arr => arr.filter(elt => elt !== number))
     }
 
-    function add(e) {
-        setInputArray(old => [ ...old, inputArray[inputArray.length - 1] + 1])
-    }
-
 
 
     return (
-        <form id="rfrform">
+        <form id="rfrform" onSubmit={submit}>
             <div id="inputs">
                 {inputArray.map(item => <InputEntry key={item} input={item} rmHandler={rm}/>)}
             </div>

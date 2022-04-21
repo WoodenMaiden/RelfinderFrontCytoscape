@@ -7,6 +7,9 @@ import github from "./GitHub-Mark-32px.png"
 export default function Pannel(props) {
     let deployed = true;
 
+    const middleSubmit = props.submitCallback
+    middleSubmit.bind(this)
+
     function deploy(e) {
         const pannel = document.getElementById('pannel')
         const hamburgerIcon = document.getElementById('hamburgerIconSpan')
@@ -36,12 +39,13 @@ export default function Pannel(props) {
         deployed = !deployed
     }
 
+    
     return (
         <div id="hamburgerMenu">
             <div id="pannel">
                 <h3>RF Reformed</h3>
                 <h4>Entries</h4>
-                   <InputForm /> 
+                   <InputForm submitCallback={middleSubmit}/> 
                 <h4>Caption</h4>
                 {/*RFRCaption*/}
                 <h4>About</h4>
