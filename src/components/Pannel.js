@@ -1,3 +1,5 @@
+import InputForm from "./InputForm";
+
 import "./Pannel.css"
 
 import github from "./GitHub-Mark-32px.png"
@@ -22,7 +24,8 @@ export default function Pannel(props) {
         else {
             setTimeout(() => {
                 for (const pannelElement of pannel.children) {
-                    pannelElement.style.display = "block"
+                    if (pannelElement.id === "aboutDiv") pannelElement.style.display = "flex"
+                    else pannelElement.style.display = "block"
                 }
             }, 500-150)
 
@@ -38,7 +41,7 @@ export default function Pannel(props) {
             <div id="pannel">
                 <h3>RF Reformed</h3>
                 <h4>Entries</h4>
-                {/*<RFRForm />*/}
+                   <InputForm /> 
                 <h4>Caption</h4>
                 {/*RFRCaption*/}
                 <h4>About</h4>

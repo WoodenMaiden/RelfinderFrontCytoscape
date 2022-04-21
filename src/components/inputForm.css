@@ -1,0 +1,18 @@
+#rfrform {
+    padding-left: 5px;
+}
+
+#controls {
+    display: flex;
+    flex-direction: row;
+}
+
+#rfrform button{
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+
+#rfrform button i {
+    margin: auto;
+}
