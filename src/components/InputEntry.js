@@ -1,5 +1,5 @@
 export default function InputEntry(props) {
-    const rmHandler =  props.rmHandler.bind(this)
+    const rmHandler =  props.rmHandler
     const input = props.input
 
     return (

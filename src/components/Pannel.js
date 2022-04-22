@@ -8,7 +8,6 @@ export default function Pannel(props) {
     let deployed = true;
 
     const middleSubmit = props.submitCallback
-    middleSubmit.bind(this)
 
     function deploy(e) {
         const pannel = document.getElementById('pannel')

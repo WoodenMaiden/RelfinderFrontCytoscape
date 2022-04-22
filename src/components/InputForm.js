@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import ReactDOM  from 'react-dom';
 
 import InputEntry from './InputEntry';
 
@@ -9,7 +8,7 @@ export default function InputForm(props) {
     const MININPUT = 2
     const [inputArray, setInputArray] = useState([1,2])
 
-    const submit = props.submitCallback.bind(this)
+    const submit = props.submitCallback
 
 
     function add(e) {

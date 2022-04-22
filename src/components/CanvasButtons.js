@@ -24,11 +24,6 @@ export default function CanvasButtons(props) {
     }
     else clickCallback = props.callback
 
-
-    clickCallback.bind(this)
-    if (submitCallback) submitCallback.bind(this)
-
-
     return (
         <div className="canvasbutton clickable" id={`btn${btnid}`} onClick={clickCallback}>
             {
