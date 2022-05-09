@@ -2,6 +2,8 @@ import {MultiDirectedGraph} from "graphology";
 import cytoscape from "cytoscape/dist/cytoscape.esm";
 import FileSaver from "file-saver"
 
+import { useEffect } from "react";
+
 import "./GraphCanvas.css"
 
 import CanvasButtons from "./CanvasButtons";
@@ -10,12 +12,12 @@ export default function GraphCanvas(props) {
 
 
 /*
-  ____      _
- / ___|   _| |_ ___  ___  ___ __ _ _ __   ___
-| |  | | | | __/ _ \/ __|/ __/ _` | '_ \ / _ \
-| |__| |_| | || (_) \__ \ (_| (_| | |_) |  __/
- \____\__, |\__\___/|___/\___\__,_| .__/ \___|
-      |___/                       |_|
+     ____      _
+	/ ___|   _| |_ ___  ___  ___ __ _ _ __   ___
+	| |  | | | | __/ _ \/ __|/ __/ _` | '_ \ / _ \
+	| |__| |_| | || (_) \__ \ (_| (_| | |_) |  __/
+	\____\__, |\__\___/|___/\___\__,_| .__/ \___|
+	      |___/                       |_|
  */
 
 	cytoscape.warnings(false)
@@ -26,9 +28,11 @@ export default function GraphCanvas(props) {
 		stop: function () {}
 	}
 
-	const cy = cytoscape({
+	let cy = cytoscape();
+	// we are doing this in a use effect since it is executed after the dom finished rendering
+	useEffect(() => cy = cytoscape({
 		//visual
-		container: undefined,
+		container: document.getElementById("cyroot"),
 		style: [
 			{
 				selector: '.Entity',
@@ -81,7 +85,7 @@ export default function GraphCanvas(props) {
 		motionBlurOpacity: 0.2,
 		wheelSensitivity: 0.3,
 		pixelRatio: 'auto'
-	})
+	}))
 
 
 	cy.on("mouseover", e => {
@@ -109,11 +113,11 @@ export default function GraphCanvas(props) {
 
 
 /*
- _   _                 _ _
-| | | | __ _ _ __   __| | | ___ _ __ ___
-| |_| |/ _` | '_ \ / _` | |/ _ \ '__/ __|
-|  _  | (_| | | | | (_| | |  __/ |  \__ \
-|_| |_|\__,_|_| |_|\__,_|_|\___|_|  |___/
+     _   _                 _ _
+	| | | | __ _ _ __   __| | | ___ _ __ ___
+	| |_| |/ _` | '_ \ / _` | |/ _ \ '__/ __|
+	|  _  | (_| | | | | (_| | |  __/ |  \__ \
+	|_| |_|\__,_|_| |_|\__,_|_|\___|_|  |___/
  */
 
 	let searchMode = false
@@ -185,17 +189,8 @@ export default function GraphCanvas(props) {
 	}
 
 
-/*
- _ _   _   _             _          _ _
-( | ) | | | | ___   ___ | | _____  ( | )
- V V  | |_| |/ _ \ / _ \| |/ / __|  V V
-      |  _  | (_) | (_) |   <\__ \
-      |_| |_|\___/ \___/|_|\_\___/
- */
-
 	if (props.nodes.length >= 2) {
 		const graph = new MultiDirectedGraph()
-		cy.removeData()
 		graph.clear()
 		const myHeaders = new Headers();
 		myHeaders.append("Content-Type", "application/json");
@@ -215,7 +210,9 @@ export default function GraphCanvas(props) {
 
 		fetch(`${URL}/relfinder/2`, requestOptions).then((res) => res.json().then((data) => {
 			graph.import(data);
-			cy.mount(document.getElementById("cyroot"))
+
+			cy.removeData()
+			cy.remove(cy.nodes().union(cy.nodes().connectedEdges()));
 
 			//constructing graph
 			graph.forEachNode((node, attributes) => {
@@ -258,13 +255,13 @@ export default function GraphCanvas(props) {
 	return (
 		<div id="GraphCanvas">
 			<div id="cyroot">
-				<ul>
-					<li><CanvasButtons icon="search" type="search" submitCallback={handleSearch}/></li>
-					<li><CanvasButtons icon="photo_camera" callback={handleScreenshot}/></li>
-					<li><CanvasButtons icon="add" callback={handleZoom}/></li>
-					<li><CanvasButtons icon="remove" callback={handleZoom}/></li>
-				</ul>
 			</div>
+			<ul>
+				<li><CanvasButtons icon="search" type="search" submitCallback={handleSearch}/></li>
+				<li><CanvasButtons icon="photo_camera" callback={handleScreenshot}/></li>
+				<li><CanvasButtons icon="add" callback={handleZoom}/></li>
+				<li><CanvasButtons icon="remove" callback={handleZoom}/></li>
+			</ul>
 		</div>
 	)
 }
