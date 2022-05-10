@@ -30,87 +30,94 @@ export default function GraphCanvas(props) {
 
 	let cy = cytoscape();
 	// we are doing this in a use effect since it is executed after the dom finished rendering
-	useEffect(() => cy = cytoscape({
-		//visual
-		container: document.getElementById("cyroot"),
-		style: [
-			{
-				selector: '.Entity',
-				style: {
-					'background-color': 'red'
+	useEffect(() => {
+		 cy = cytoscape({
+			//visual
+			container: document.getElementById("cyroot"),
+			style: [
+				{
+					selector: '.Entity',
+					style: {
+						'background-color': 'red'
+					}
+				},
+				{
+					selector: '.Literal',
+					style: {
+						'background-color': 'green'
+					}
+				},
+				{
+					selector: 'edge',
+					style: {
+						'curve-style': 'bezier',
+						'target-arrow-shape': 'triangle',
+					}
 				}
-			},
-			{
-				selector: '.Literal',
-				style: {
-					'background-color': 'green'
-				}
-			},
-			{
-				selector: 'edge',
-				style: {
-					'curve-style': 'bezier',
-					'target-arrow-shape': 'triangle',
+			],
+
+
+			// initial viewport state:
+			zoom: 1,
+			pan: { x: 0, y: 0 },
+
+			// interaction options:
+			minZoom: 1e-50,
+			maxZoom: 1e50,
+			zoomingEnabled: true,
+			userZoomingEnabled: true,
+			panningEnabled: true,
+			userPanningEnabled: true,
+			boxSelectionEnabled: true,
+			selectionType: 'single',
+			touchTapThreshold: 8,
+			desktopTapThreshold: 4,
+			autolock: false,
+			autoungrabify: false,
+			autounselectify: false,
+			multiClickDebounceTime: 250,
+
+			// rendering options:
+			headless: false,
+			styleEnabled: true,
+			hideEdgesOnViewport: false,
+			textureOnViewport: false,
+			motionBlur: false,
+			motionBlurOpacity: 0.2,
+			wheelSensitivity: 0.3,
+			pixelRatio: 'auto'
+		})
+
+		cy.on("mouseover", e => {
+			if (!searchMode && e.target !== cy && e.target.isNode()) {
+				for (const elt of cy.elements()) {
+					if (e.target.neighborhood().includes(elt) || elt === e.target){
+						elt.style('label', elt.json().data.label);
+						continue
+					}
+					elt.style('background-opacity', 0.05);
+					elt.style('line-opacity', 0.05);
 				}
 			}
-		],
+		})
 
-
-		// initial viewport state:
-		zoom: 1,
-		pan: { x: 0, y: 0 },
-
-		// interaction options:
-		minZoom: 1e-50,
-		maxZoom: 1e50,
-		zoomingEnabled: true,
-		userZoomingEnabled: true,
-		panningEnabled: true,
-		userPanningEnabled: true,
-		boxSelectionEnabled: true,
-		selectionType: 'single',
-		touchTapThreshold: 8,
-		desktopTapThreshold: 4,
-		autolock: false,
-		autoungrabify: false,
-		autounselectify: false,
-		multiClickDebounceTime: 250,
-
-		// rendering options:
-		headless: false,
-		styleEnabled: true,
-		hideEdgesOnViewport: false,
-		textureOnViewport: false,
-		motionBlur: false,
-		motionBlurOpacity: 0.2,
-		wheelSensitivity: 0.3,
-		pixelRatio: 'auto'
-	}))
-
-
-	cy.on("mouseover", e => {
-		if (!searchMode && e.target !== cy && e.target.isNode()) {
-			for (const elt of cy.elements()) {
-				if (e.target.neighborhood().includes(elt) || elt === e.target){
-					elt.style('label', elt.json().data.label);
-					continue
+		cy.on("mouseout", e => {
+			if (!searchMode && e.target !== cy) {
+				for (const elt of cy.elements()) {
+					elt.style('label', null)
+					elt.style('background-opacity', 1);
+					elt.style('line-opacity', 1);
 				}
-				elt.style('background-opacity', 0.05);
-				elt.style('line-opacity', 0.05);
 			}
+		})
+
+		return function cleanListeners() {
+			cy.removeAllListeners()
 		}
 	})
 
-	cy.on("mouseout", e => {
-		if (!searchMode && e.target !== cy) {
-			for (const elt of cy.elements()) {
-				elt.style('label', null)
-				elt.style('background-opacity', 1);
-				elt.style('line-opacity', 1);
-			}
-		}
-	})
 
+	
 
 /*
      _   _                 _ _
