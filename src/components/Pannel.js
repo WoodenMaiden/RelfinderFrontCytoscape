@@ -1,12 +1,17 @@
 import InputForm from "./InputForm";
 import { Help, FormatQuote, GitHub } from '@mui/icons-material'
-import { Switch, FormControlLabel} from '@mui/material'
+import { Box, Switch, Slider, FormControlLabel} from '@mui/material'
 
 
 import "./Pannel.css"
 
 export default function Pannel(props) {
     let deployed = true;
+
+    const MAX_DEPTH = 5
+                    /* equivalent of range in python*/
+                    /*              v               */
+    const genMark = n => [...Array(n).keys()].map(m => (m+1 > 1 && m+1 < n)? {value: m+1}: {value: m+1, label:`${m+1}`})
 
     const middleSubmit = props.submitCallback
     const handleSwitch = props.switchCallback
@@ -47,7 +52,13 @@ export default function Pannel(props) {
                 <h3>RF Reformed</h3>
                 <h4>Entries</h4>
                     <InputForm submitCallback={middleSubmit}/> 
-                    <FormControlLabel className="clickable" control={<Switch onChange={handleSwitch} defaultChecked/>} label="Factorize graph" />
+                    <Box sx={{display: "flex", flexDirection: "column", padding: "10px"}}>
+                        <FormControlLabel control={<Switch onChange={handleSwitch} defaultChecked/>} label="Factorize graph" />
+                        <FormControlLabel sx={{m: 0, width : (deployed)? "100%": 0}} control={<Slider onChange={props.depthCallback} 
+                            aria-label="Temperature" valueLabelDisplay="auto" sx={{marginRight: 1}}
+                            min={1} max={MAX_DEPTH} step={1} defaultValue={2} marks={genMark(MAX_DEPTH)}/>} 
+                        label="Depth" />
+                    </Box>
                 <h4>Caption</h4>
                 {/*RFRCaption*/}
                 <h4>About</h4>

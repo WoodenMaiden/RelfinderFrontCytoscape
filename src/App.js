@@ -7,6 +7,7 @@ import {useState} from "react";
 function App() {
 
   const [entries, setEntries] = useState([])
+  const [depth, setDepth] = useState(2)
   const [factorized, setFactorized] = useState(true)
 
 /*
@@ -32,11 +33,15 @@ function App() {
     setFactorized(e.target.checked)
   }
 
+  function handleDepth(e) {
+    setDepth(e.target.value)
+  }
+
   return (
     <div className="App">
         <input type="hidden" id="switch" value={factorized}/>
-        <GraphCanvas nodes={entries} factorized={factorized}/>
-        <Pannel switchCallback={handleSwitch} submitCallback={handleSubmit}/>
+        <GraphCanvas nodes={entries} factorized={factorized} depth={depth}/>
+        <Pannel switchCallback={handleSwitch} submitCallback={handleSubmit} depthCallback={handleDepth}/>
     </div>
   );
 }

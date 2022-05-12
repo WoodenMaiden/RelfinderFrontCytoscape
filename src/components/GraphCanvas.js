@@ -10,9 +10,11 @@ import CanvasButtons from "./CanvasButtons";
 
 
 var lastInputs
+var lastDepth
 var lastGraph // we use var so we can access these from the component
 export default function GraphCanvas(props) {
 
+	if (!lastDepth) lastDepth = undefined
 	
 	// https://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
 	Array.prototype.equals = function (array) {
@@ -219,14 +221,13 @@ export default function GraphCanvas(props) {
 				};
 				const URL = (process.env.REACT_APP_API_URL.slice(-1) === "/") ? process.env.REACT_APP_API_URL.slice(0, -1) : process.env.REACT_APP_API_URL
 	
-				const fetchResult = await fetch(`${URL}/relfinder/2`, requestOptions)
+				const fetchResult = await fetch(`${URL}/relfinder/${props.depth}`, requestOptions)
 				const json = await fetchResult.json()
 				graph.import(json)
 
 				lastGraph = graph
 
 				draw(graph)
-
 
 				cy.layout(layoutOptions).run()
 				zoomRatioBtn = cy.zoom() / 2
@@ -242,8 +243,13 @@ export default function GraphCanvas(props) {
 		}
 
 
-		if ((!lastGraph || !props.nodes.equals(lastInputs)) && props.nodes.length >= 2)
-			fetchData();
+
+		if  (props.nodes.length >= 2 && 
+			((!lastGraph || !props.nodes.equals(lastInputs)) || 
+			(!lastDepth || lastDepth !== props.depth))) {
+				lastDepth = props.depth						
+				fetchData();
+		}
 		else {
 			draw(lastGraph)
 			cy.layout(layoutOptions).run()
@@ -251,7 +257,7 @@ export default function GraphCanvas(props) {
 		}
 			
 
-		lastInputs = props.nodes						
+		lastInputs = props.nodes
 	
 
 		cy.on("mouseover", e => {
