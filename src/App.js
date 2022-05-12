@@ -7,6 +7,7 @@ import {useState} from "react";
 function App() {
 
   const [entries, setEntries] = useState([])
+  const [factorized, setFactorized] = useState(true)
 
 /*
 | | | | __ _ _ __   __| | | ___ _ __ ___
@@ -27,11 +28,15 @@ function App() {
     setEntries(nodes)
   }
 
+  function handleSwitch(e) {
+    setFactorized(e.target.checked)
+  }
 
   return (
     <div className="App">
-        <GraphCanvas nodes={entries}/>
-        <Pannel submitCallback={handleSubmit}/>
+        <input type="hidden" id="switch" value={factorized}/>
+        <GraphCanvas nodes={entries} factorized={factorized}/>
+        <Pannel switchCallback={handleSwitch} submitCallback={handleSubmit}/>
     </div>
   );
 }

@@ -54,9 +54,8 @@ export default function GraphCanvas(props) {
 	cytoscape.warnings(false)
 
 	function draw (toDraw) {
-		//constructing graph
-//		console.log(toDraw)
-		if (toDraw) {
+		if (!toDraw) return ;
+		if (!props.factorized) {
 			toDraw.forEachNode((node, attributes) => {
 				cy.add({
 					group: 'nodes',
@@ -85,7 +84,51 @@ export default function GraphCanvas(props) {
 					pannable: true
 				})
 			})
-		}	
+		} else {
+			toDraw.forEachNode((node, attributes) => {
+				if (node.match(/^.+:\/\/.*/ig)){
+					const nodeData = {}
+					toDraw.forEachOutNeighbor(node, (neighbor, attribute) => {
+						if (!neighbor.match(/^.+:\/\/.*/ig)){
+							toDraw.forEachDirectedEdge(node, neighbor, (edge, edgeAttribute) => {
+								nodeData[`${edge}`] = neighbor
+							})
+						}
+					})
+					cy.add({
+						group: 'nodes',
+						data: {
+							id: node,
+							label: node,
+							...nodeData
+						},
+						selected: false,
+						selectable: true,
+						locked: false,
+						grabbable: true,
+						classes: ['Entity']
+					})
+				}
+			})
+
+			toDraw.forEachDirectedEdge((edge, attributes, source, target,
+									sourceAttributes, targetAttributes, undirected) => {
+				if (target.match(/^.+:\/\/.*/ig)) {
+					cy.add({
+						group: 'edges',
+						data: {
+							id: edge,
+							source: source,
+							target: target,
+							label: attributes.value
+						},
+						pannable: true
+					})
+				}
+			})
+		}
+
+		console.log(`total: ${cy.elements('nodes').length}, entities: ${cy.elements(".Entity").length}, litteral: ${cy.elements(".Literal").length}`)
 	}
 
 
@@ -185,7 +228,6 @@ export default function GraphCanvas(props) {
 				draw(graph)
 
 
-				console.log(cy.elements().length)		
 				cy.layout(layoutOptions).run()
 				zoomRatioBtn = cy.zoom() / 2
 			}
@@ -194,7 +236,6 @@ export default function GraphCanvas(props) {
 				//maybe put a label if we can here
 				draw(graph)
 
-				console.log(cy.elements().length)		
 				cy.layout(layoutOptions).run()
 				zoomRatioBtn = cy.zoom() / 2
 			}
@@ -205,7 +246,6 @@ export default function GraphCanvas(props) {
 			fetchData();
 		else {
 			draw(lastGraph)
-			console.log(cy.elements().length)		
 			cy.layout(layoutOptions).run()
 			zoomRatioBtn = cy.zoom() / 2
 		}

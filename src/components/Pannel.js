@@ -1,13 +1,15 @@
 import InputForm from "./InputForm";
+import { Help, FormatQuote, GitHub } from '@mui/icons-material'
+import { Switch, FormControlLabel} from '@mui/material'
+
 
 import "./Pannel.css"
-
-import github from "./GitHub-Mark-32px.png"
 
 export default function Pannel(props) {
     let deployed = true;
 
     const middleSubmit = props.submitCallback
+    const handleSwitch = props.switchCallback
 
     function deploy(e) {
         const pannel = document.getElementById('pannel')
@@ -44,24 +46,17 @@ export default function Pannel(props) {
             <div id="pannel">
                 <h3>RF Reformed</h3>
                 <h4>Entries</h4>
-                   <InputForm submitCallback={middleSubmit}/> 
+                    <InputForm submitCallback={middleSubmit}/> 
+                    <FormControlLabel className="clickable" control={<Switch onChange={handleSwitch} defaultChecked/>} label="Factorize graph" />
                 <h4>Caption</h4>
                 {/*RFRCaption*/}
                 <h4>About</h4>
                 <div id="aboutDiv">
                     <a href="https://github.com/WoodenMaiden/RelfinderFrontCytoscape/tree/buttons">
-                        <img alt="github" src={github}/>
+                        <GitHub />
                     </a>
-                    <div className="aboutIcon clickable">
-                        <i className="material-icons-round">
-                            help
-                        </i>
-                    </div>
-                    <div className="aboutIcon clickable">
-                        <i className="material-icons-round">
-                            format_quote
-                        </i>
-                    </div>
+                    <Help />
+                    <FormatQuote />
                 </div>
             </div>
             <div id="hamburgerIcon" className="clickable" onClick={deploy}>

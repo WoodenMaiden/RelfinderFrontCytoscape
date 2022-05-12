@@ -15,3 +15,7 @@
   font-size: calc(10px + 2vmin);
   color: #414755;
 }
+
+a:visited {
+  color: #414755;
+}
