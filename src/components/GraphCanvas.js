@@ -166,6 +166,21 @@ export default function GraphCanvas(props) {
 						'curve-style': 'bezier',
 						'target-arrow-shape': 'triangle',
 					}
+				}, 
+				{
+					selector: '.ErrorNode',
+					style: {
+						'background-color': '#a32222',
+						'shape': 'ellipse',
+						'width': '100%',
+						'height': '25%',
+						'content': 'data(id)',
+						'color': '#ffffff',
+        				'text-valign': 'center',
+        				'text-halign': 'center',
+						'text-outline-width': 2,
+						'text-outline-color': '#a32222',
+					}
 				}
 			],
 
@@ -233,9 +248,15 @@ export default function GraphCanvas(props) {
 				zoomRatioBtn = cy.zoom() / 2
 			}
 			catch(e) {
-				const graph = new MultiDirectedGraph()
 				//maybe put a label if we can here
-				draw(graph)
+
+				cy.add({
+					group: 'nodes',
+					data : {
+						id: e.toString(),
+					},
+					classes: ['ErrorNode']
+				})
 
 				cy.layout(layoutOptions).run()
 				zoomRatioBtn = cy.zoom() / 2
