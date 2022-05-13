@@ -40,6 +40,10 @@
     justify-content: space-around;
 }
 
+.pannelShow p {
+    font-size: 0.5em;
+}
+
 .aboutIcon {
     height: 32px;
     width: 32px;
