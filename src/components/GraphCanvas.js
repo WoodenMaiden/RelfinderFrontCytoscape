@@ -8,11 +8,18 @@ import "./GraphCanvas.css"
 
 import CanvasButtons from "./CanvasButtons";
 
+import { CircularProgress } from '@mui/material'
+
 
 var lastInputs
 var lastDepth
 var lastGraph // we use var so we can access these from the component
 export default function GraphCanvas(props) {
+
+	let xDragged
+	let yDragged
+	let xLastDragged
+	let yLastDragged
 
 	if (!lastDepth) lastDepth = undefined
 	
@@ -57,7 +64,18 @@ export default function GraphCanvas(props) {
 
 	function draw (toDraw) {
 		if (!toDraw) return ;
-		if (!props.factorized) {
+
+		if (toDraw.nodes().length === 0) {
+			console.log("a")
+			cy.add({
+				group: 'nodes',
+				data : {
+					id: "No graph found",
+				},
+				classes: ['ErrorNode']
+			})
+		}
+		else if (!props.factorized) {
 			toDraw.forEachNode((node, attributes) => {
 				cy.add({
 					group: 'nodes',
@@ -86,7 +104,8 @@ export default function GraphCanvas(props) {
 					pannable: true
 				})
 			})
-		} else {
+		} 
+		else {
 			toDraw.forEachNode((node, attributes) => {
 				if (node.match(/^.+:\/\/.*/ig)){
 					const nodeData = {}
@@ -219,6 +238,7 @@ export default function GraphCanvas(props) {
 
 		const fetchData = async () => {
 			try {
+				document.getElementById("loadingdiv").style.display = "flex"
 				const graph = new MultiDirectedGraph()
 
 				const myHeaders = new Headers();
@@ -244,6 +264,8 @@ export default function GraphCanvas(props) {
 
 				draw(graph)
 
+				document.getElementById("loadingdiv").style.display = "none"
+
 				cy.layout(layoutOptions).run()
 				zoomRatioBtn = cy.zoom() / 2
 			}
@@ -257,6 +279,8 @@ export default function GraphCanvas(props) {
 					},
 					classes: ['ErrorNode']
 				})
+
+				document.getElementById("loadingdiv").style.display = "none"
 
 				cy.layout(layoutOptions).run()
 				zoomRatioBtn = cy.zoom() / 2
@@ -302,6 +326,33 @@ export default function GraphCanvas(props) {
 					elt.style('line-opacity', 1);
 				}
 			}
+		})
+
+		cy.on("cxttapstart", e => {
+			xDragged = e.renderedPosition.x
+			yDragged = e.renderedPosition.y
+			yLastDragged = yDragged
+			xLastDragged = xDragged
+		})
+
+		cy.on("cxtdrag", e => {
+			console.log(`y: ${yDragged}, x: ${xDragged}, `)
+			xDragged = e.renderedPosition.x
+			yDragged = e.renderedPosition.y
+			cy.panBy({
+				x: xDragged - xLastDragged,
+				y: yDragged - yLastDragged
+			})
+
+			yLastDragged = yDragged
+			xLastDragged = xDragged			
+		})
+
+		cy.on("cxttapend", e => {
+			yLastDragged = null
+			xLastDragged = null
+			yDragged = null
+			xDragged = null
 		})
 
 		return function cleanListeners() {
@@ -389,6 +440,10 @@ export default function GraphCanvas(props) {
 
 	return (
 		<div id="GraphCanvas">
+			<div style={{display: "none"}} id="loadingdiv">
+				<CircularProgress id="loading" color="success" />
+				<h3>This might take some time</h3>
+			</div>
 			<div id="cyroot">
 			</div>
 			<ul>
