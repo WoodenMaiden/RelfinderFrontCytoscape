@@ -336,9 +336,9 @@ export default function GraphCanvas(props) {
 		})
 
 		cy.on("cxtdrag", e => {
-			console.log(`y: ${yDragged}, x: ${xDragged}, `)
 			xDragged = e.renderedPosition.x
 			yDragged = e.renderedPosition.y
+
 			cy.panBy({
 				x: xDragged - xLastDragged,
 				y: yDragged - yLastDragged
