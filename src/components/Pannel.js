@@ -26,7 +26,11 @@ export default function Pannel(props) {
 
     function deploy(deployed) {
         const pannel = document.getElementById('pannel')
+        const menu = document.getElementById('hamburgerMenu')
+        const bar = document.getElementById('hamburgerIcon')
         const hamburgerIcon = document.getElementById('hamburgerIconSpan')
+
+        bar.style.pointerEvents = "auto"
 
         if(!deployed) {
             setTimeout(() => {
@@ -36,9 +40,8 @@ export default function Pannel(props) {
 
             pannel.style.width = "0px"
             pannel.style.paddingLeft = "0px"
+            menu.style.pointerEvents = "none"    
             hamburgerIcon.style.transform = 'rotate(-180deg)'
-            console.log("pannel = " + document.getElementById('pannel').offsetWidth)
-
         }
         else {
             setTimeout(() => {
@@ -48,9 +51,8 @@ export default function Pannel(props) {
 
             pannel.style.width = "90%"
             pannel.style.paddingLeft = "5px"
+            menu.style.pointerEvents = "auto"
             hamburgerIcon.style.transform = 'rotate(0deg)'
-            console.log("pannel = " + document.getElementById('pannel').offsetWidth)
-
         }
     }
 
@@ -81,8 +83,8 @@ export default function Pannel(props) {
             <Resizable  width={width} height={100} onResize={handleResize}
                         handle={
                             <Box id="hamburgerIcon" className="clickable"
-                                 sx={{cursor: (isDeployed)?"col-resize" :"pointer"}} onClick={handleDeploy}> 
-                                <IconButton sx={{height: "10%"}} children={<ChevronLeft id="hamburgerIconSpan"/>}/>
+                                 sx={{cursor: (isDeployed)?"col-resize" :"auto"}} > 
+                                <IconButton onClick={handleDeploy} sx={{height: "10%"}} children={<ChevronLeft id="hamburgerIconSpan"/>}/>
                             </Box>
                         } handleSize={[1]} resizeHandles={['e']}>
                 <Box id="hamburgerMenu" sx={{width: `${width}px`}}>
