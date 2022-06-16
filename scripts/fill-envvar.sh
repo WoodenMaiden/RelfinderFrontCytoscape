@@ -7,7 +7,7 @@ variable=/build/src/variables.js
 echo 'Fill env variables'
 
 if [ -n "${API_URL}" ]; then 
-    sed -i "/const toreplace_API_URL/ s/\bnull\b/'$API_URL'/" "$variable"
+    sed -i "/const API_URL/ s/\bnull\b/'$API_URL'/" "$variable"
 fi 
 
 exec "$@"
