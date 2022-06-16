@@ -1,15 +1,14 @@
 import {MultiDirectedGraph} from "graphology";
 import cytoscape from "cytoscape/dist/cytoscape.esm";
 import FileSaver from "file-saver"
-
 import { useEffect } from "react";
 
-import "./GraphCanvas.css"
-
 import CanvasButtons from "./CanvasButtons";
+import { URL } from "../variables";
 
 import { CircularProgress } from '@mui/material'
 
+import "./GraphCanvas.css"
 
 var lastInputs
 var lastDepth
@@ -66,7 +65,6 @@ export default function GraphCanvas(props) {
 		if (!toDraw) return ;
 
 		if (toDraw.nodes().length === 0) {
-			console.log("a")
 			cy.add({
 				group: 'nodes',
 				data : {
@@ -254,7 +252,7 @@ export default function GraphCanvas(props) {
 					body: raw,
 					redirect: "follow"
 				};
-				const URL = (process.env.REACT_APP_API_URL.slice(-1) === "/") ? process.env.REACT_APP_API_URL.slice(0, -1) : process.env.REACT_APP_API_URL
+				//const URL = (process.env.REACT_APP_API_URL.slice(-1) === "/") ? process.env.REACT_APP_API_URL.slice(0, -1) : process.env.REACT_APP_API_URL
 	
 				const fetchResult = await fetch(`${URL}/relfinder/${props.depth}`, requestOptions)
 				const json = await fetchResult.json()
