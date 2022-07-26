@@ -45,8 +45,6 @@ export default function CanvasButtons(props) {
         if (keysToPrevent.includes(e.keyCode)) {
             e.preventDefault()
             if (suggestions.length <= 0) return;
-            console.log(indexSuggestion)
-            console.log(suggestions)
             
             const input = document.getElementById(`forminput${btnid}`)
             switch(e.keyCode) {
