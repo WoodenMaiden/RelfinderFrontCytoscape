@@ -1,3 +1,4 @@
+/* eslint-disable no-extend-native */
 import {MultiDirectedGraph} from "graphology";
 import cytoscape from "cytoscape/dist/cytoscape.esm";
 import FileSaver from "file-saver"
@@ -147,7 +148,6 @@ export default function GraphCanvas(props) {
 			})
 		}
 
-		console.log(`total: ${cy.elements('nodes').length}, entities: ${cy.elements(".Entity").length}, litteral: ${cy.elements(".Literal").length}`)
 	}
 
 
@@ -435,6 +435,13 @@ export default function GraphCanvas(props) {
 			})
 	}
 
+	function handleSearchChange(e) {
+		const entry = e.target.value.trim()
+		
+		return (!entry)? []: cy.nodes().filter(
+			node => node.data('label').includes(entry)
+		).map(node => node.data('label')) 
+	}
 
 	return (
 		<div id="GraphCanvas">
@@ -445,10 +452,10 @@ export default function GraphCanvas(props) {
 			<div id="cyroot">
 			</div>
 			<ul>
-				<li><CanvasButtons icon="search" type="search" submitCallback={handleSearch}/></li>
-				<li><CanvasButtons icon="photo_camera" callback={handleScreenshot}/></li>
-				<li><CanvasButtons icon="add" callback={handleZoom}/></li>
-				<li><CanvasButtons icon="remove" callback={handleZoom}/></li>
+				<li><CanvasButtons id="search" icon="search" type="search" changeCallback={handleSearchChange} submitCallback={handleSearch}/></li>
+				<li><CanvasButtons id="camera" icon="photo_camera" callback={handleScreenshot}/></li>
+				<li><CanvasButtons id="zoom" icon="add" callback={handleZoom}/></li>
+				<li><CanvasButtons id="dezoom" icon="remove" callback={handleZoom}/></li>
 			</ul>
 		</div>
 	)
