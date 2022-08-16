@@ -12,85 +12,97 @@ export default function InputEntry(props) {
     const rmHandler =  props.rmHandler
     const input = props.input
 
+    const [ timeoutID, setTimeoutID ] = useState(setTimeout(()=> { return true;}, 0))
     const [ suggestions, setSuggestions ] = useState([])
+    const [ entry, setEntry ] = useState("")
 
-    async function getLabelsOnEntry(e) {
-        const entry = e.target.value.trim()
-        if (entry === "") {
-            document.getElementById(`suggestions${input}`).style.display = 'none'
-            setSuggestions([])
-            return;
-        }
 
-        setTimeout(async () => {
-            if(e.target.value.trim() === entry) {
+    // returns the timeout id in order to clear it with setTimeout()
+    function getLabelsOnEntry() {
+
+        //TODO pass aborter to function in timeout
+        return setTimeout(async () => {
+            const sugBox = document.getElementById(`suggestions${input}`)
+            setSuggestions([]) // to trigger loading animation
+            sugBox.style.display = 'block'
+
+            // mocking this for now because virtuoso takes ~ 4 min to execute /labels for some reason
                 
-                const sugBox = document.getElementById(`suggestions${input}`)
-                setSuggestions([]) // to trigger loading animation
-                sugBox.style.display = 'block'
+            const myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
 
-                // mocking this for now because virtuoso takes ~ 4 min to execute /labels for some reason
-                
-                // const myHeaders = new Headers();
-				// myHeaders.append("Content-Type", "application/json");
-	
-				// const raw = JSON.stringify({
-				// 	"node": entry
-				// });
-	
-				// const requestOptions = {
-				// 	method: "POST",
-				// 	headers: myHeaders,
-				// 	body: raw,
-				// 	redirect: "follow"
-				// };
-                // const labels = await fetch(`${URL}/labels`, requestOptions) 
-                function mockData(node) {
-                    return new Promise((res, rej) => setTimeout(() => {
-                        const allowed='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789/_-'                    
-                        const gen = []
-                        for(let i = 0; i < Math.floor(Math.random() * 15); ++i ) {
-                            let subject = node
-                            let lbl = ''
-                            for (let c = 0; c < 5; ++c ) {
-                                subject += allowed.charAt(Math.floor(Math.random() * allowed.length));
-                                lbl += allowed.charAt(Math.floor(Math.random() * allowed.length - 3))
-                            }
+            const raw = JSON.stringify({
+                "node": entry
+            });
 
-                            gen.push({
-                                s: subject,
-                                label: lbl
-                            })
-                        }
-                        res(gen)
-                    }, Math.floor(Math.random() * 1500)))
-                }
+            const requestOptions = {
+                method: "POST",
+                headers: myHeaders,
+                body: raw,
+                redirect: "follow",
+            };
 
-                const labels = await mockData(entry)
-                setSuggestions([ ...labels ])
-            }
+            const fetchLabels = await (await fetch(`${URL}/labels`, requestOptions)).json()
+
+            setSuggestions([ ...fetchLabels.labels.map(
+                (elt) => { return { s: elt.s.value, label: elt.label?.value }}
+            )])
         }, 2000)
     }
 
+
+/*
+     _   _                 _ _
+	| | | | __ _ _ __   __| | | ___ _ __ ___
+	| |_| |/ _` | '_ \ / _` | |/ _ \ '__/ __|
+	|  _  | (_| | | | | (_| | |  __/ |  \__ \
+	|_| |_|\__,_|_| |_|\__,_|_|\___|_|  |___/
+*/
+
     function selectSuggestion(sug) {
         const sugBox = document.getElementById(`suggestions${input}`)
-        const forminput = document.getElementById(`input${input}`)
 
         sugBox.style.display = 'none'
         setSuggestions([])
-        forminput.value = sug.s
+        setEntry(sug.s)
     }
 
     function click(e) {
         if (
             typeof e.target.className === "string" // if you click on a svg, they have not a "string" type
             && !e.target.className.includes('suggestionItem') 
-            && suggestions.length > 0){ 
+            ){ 
 
             document.getElementById(`suggestions${input}`).style.display = 'none' 
             setSuggestions([]);
         }
     }
+
+    function entryChanges(e) {
+        setEntry(e.target?.value)
+    }
+
+
+/*
+     _   _             _ 
+    | | | | ___   ___ | | _ ___
+    | |_| |/ _ \ / _ \| |/ / __|
+    |  _  | (_) | (_) |   <\__ \
+    |_| |_|\___/ \___/|_|\_\___/
+*/
+
+    useEffect(() => {
+        clearTimeout(timeoutID)
+
+        if (entry.trim() === "") {
+            document.getElementById(`suggestions${input}`).style.display = 'none'
+            setSuggestions([])
+        } else {
+            setTimeoutID(getLabelsOnEntry())
+        }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [entry, input])
 
     useEffect(() => {
         document.addEventListener('click', click, true)
@@ -100,7 +112,7 @@ export default function InputEntry(props) {
     return (
         <Box>
             <div className="controls">
-                <input type="search" onChange={getLabelsOnEntry} name={input} id={`input${input}`} placeholder="URI or label"/>
+                <input type="search" onChange={entryChanges} value={entry} name={input} id={`input${input}`} placeholder="URI or label"/>
                 <button className="clickable" type="button" id={`rm${input}`} onClick={rmHandler}>
                     <span className="material-icons-round">
                         close
@@ -131,7 +143,7 @@ export default function InputEntry(props) {
                                 }
                             }}
                             key={sug.s+sug.label}>
-                                {sug.label} - {sug.s}
+                                {(sug.label)? `${sug.label} - ${sug.s}`: sug.s }
                         </Typography>
                     )}
                 </Stack>

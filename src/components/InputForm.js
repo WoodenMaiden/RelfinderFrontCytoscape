@@ -33,7 +33,7 @@ export default function InputForm(props) {
 
 
     return (
-        <form id="rfrform" onSubmit={submit}>
+        <form id="rfrform" autoComplete="off" onSubmit={submit}>
             <div id="inputs">
                 {inputArray.map(item => <InputEntry key={item} input={item} rmHandler={rm}/>)}
             </div>
