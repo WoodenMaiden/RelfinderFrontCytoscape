@@ -111,7 +111,12 @@ export default function GraphCanvas(props) {
 					toDraw.forEachOutNeighbor(node, (neighbor, attribute) => {
 						if (!neighbor.match(/^.+:\/\/.*/ig)){
 							toDraw.forEachDirectedEdge(node, neighbor, (edge, edgeAttribute) => {
-								nodeData[`${edge}`] = neighbor
+								nodeData[
+									`${(edgeAttribute.value.includes('#')
+										? edgeAttribute.value.split('#').slice(-1)
+										: edgeAttribute.value.split('/').slice(-1))
+									}`
+								] = neighbor
 							})
 						}
 					})
