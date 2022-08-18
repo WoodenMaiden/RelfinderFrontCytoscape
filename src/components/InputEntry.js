@@ -13,6 +13,7 @@ export default function InputEntry(props) {
     const input = props.input
 
     const [ timeoutID, setTimeoutID ] = useState(setTimeout(()=> { return true;}, 0))
+    const [ selectedSuggestion, setSelectedSuggestion ] = useState(false) //this will prevent from fetching suggestions when selecting one
     const [ suggestions, setSuggestions ] = useState([])
     const [ entry, setEntry ] = useState("")
 
@@ -26,8 +27,6 @@ export default function InputEntry(props) {
             setSuggestions([]) // to trigger loading animation
             sugBox.style.display = 'block'
 
-            // mocking this for now because virtuoso takes ~ 4 min to execute /labels for some reason
-                
             const myHeaders = new Headers();
             myHeaders.append("Content-Type", "application/json");
 
@@ -64,6 +63,7 @@ export default function InputEntry(props) {
 
         sugBox.style.display = 'none'
         setSuggestions([])
+        setSelectedSuggestion(true)
         setEntry(sug.s)
     }
 
@@ -98,7 +98,9 @@ export default function InputEntry(props) {
             document.getElementById(`suggestions${input}`).style.display = 'none'
             setSuggestions([])
         } else {
-            setTimeoutID(getLabelsOnEntry())
+            //if the value hasn't been filled via from the suggestion list fetch selections,
+            if(!selectedSuggestion) setTimeoutID(getLabelsOnEntry())
+            else setSelectedSuggestion(false) //else we do nothing to avoid another fetch() and reset the value
         }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
