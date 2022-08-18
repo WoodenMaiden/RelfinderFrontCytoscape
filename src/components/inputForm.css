@@ -7,7 +7,7 @@
     flex-direction: row;
 }
 
-.controls input{
+.controls input, .suggestions{
     width: 70%
 }
 

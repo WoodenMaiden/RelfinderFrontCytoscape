@@ -10,6 +10,11 @@ export default function InputForm(props) {
 
     const submit = props.submitCallback
 
+    const clearEvent = new class ClearEvent extends EventTarget {
+        clearFields() {
+          this.dispatchEvent(new Event("clear"));
+        }
+    }()
 
     function add(e) {
         setInputArray(old => [ ...old, inputArray[inputArray.length - 1] + 1])
@@ -33,9 +38,9 @@ export default function InputForm(props) {
 
 
     return (
-        <form id="rfrform" onSubmit={submit}>
+        <form id="rfrform" autoComplete="off" onSubmit={submit}>
             <div id="inputs">
-                {inputArray.map(item => <InputEntry key={item} input={item} rmHandler={rm}/>)}
+                {inputArray.map(item => <InputEntry key={item} input={item} clearEvent={clearEvent} rmHandler={rm}/>)}
             </div>
             <div className="controls">
                 <button type="button" onClick={add}>
@@ -43,7 +48,7 @@ export default function InputForm(props) {
                         add
                     </span>
                 </button>
-                <button type="reset">
+                <button type="reset" onClick={() => clearEvent.clearFields()}>
                     <span className="material-icons-round clickable">
                         refresh
                     </span>

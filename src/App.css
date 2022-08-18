@@ -17,6 +17,10 @@
   color: #414755;
 }
 
+body, .App {
+  overflow: hidden;
+}
+
 a:visited, a {
   color: #414755;
 }
