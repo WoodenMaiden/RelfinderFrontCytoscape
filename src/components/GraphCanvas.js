@@ -1,13 +1,15 @@
 /* eslint-disable no-extend-native */
+import {v4} from "uuid";
 import {MultiDirectedGraph} from "graphology";
 import cytoscape from "cytoscape/dist/cytoscape.esm";
 import FileSaver from "file-saver"
-import { useEffect } from "react";
-
-import CanvasButtons from "./CanvasButtons";
-import { URL } from "../variables";
+import { useEffect, useState } from "react";
 
 import { CircularProgress } from '@mui/material'
+
+import CanvasButtons from "./CanvasButtons";
+import NodeDetails from "./NodeDetails";
+import { URL } from "../variables";
 
 import "./GraphCanvas.css"
 
@@ -50,6 +52,25 @@ export default function GraphCanvas(props) {
 	// Hide method from for-in loops
 	Object.defineProperty(Array.prototype, "equals", {enumerable: false});
 
+
+	const [ factorizedDetails, setFactorizedDetails ] = useState([{
+		detailsID: v4(),
+		x:200,
+		y:200,
+		data: {
+			id: "someid",
+			label: "hmmmm",
+			somedata: 10325
+		}
+	}, {
+		detailsID: v4(),
+		x:600,
+		y:400,
+		data: {
+			id: "someOtherid",
+			somedata: ['data', 1456, 'idkwtfisgoingon', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa']
+		}
+	}])
 
 /*
      ____      _
@@ -331,6 +352,10 @@ export default function GraphCanvas(props) {
 			}
 		})
 
+		cy.on('tap', 'node', (e) => {
+			//spawn NodeDetails here	
+		})
+
 		cy.on("cxttapstart", e => {
 			xDragged = e.renderedPosition.x
 			yDragged = e.renderedPosition.y
@@ -418,6 +443,24 @@ export default function GraphCanvas(props) {
 		}), `RFR_${d.getDate()}/${d.getMonth()}/${d.getFullYear()}-${d.getHours()}:${d.getMinutes()}`)
 	}
 
+
+	function dragHandler(e) {
+		const index = factorizedDetails.findIndex(d => d.detailsID === e.detailsID);
+		if (index === -1) return;
+		const suggestion = factorizedDetails[index]
+
+		suggestion.x = suggestion.x + (suggestion.x - e.screenX)
+
+		const newFactorizedDetails = factorizedDetails.map((_,i) => i !== index)
+
+
+		// change (y,x) here
+	}
+
+	function rmHandler(id) {
+		console.log(id) //TODO
+	}
+
 	// because the basic zoom depends on the initial layout: a fixed value can be too much
 	let zoomRatioBtn
 	function handleZoom(e) {
@@ -454,9 +497,13 @@ export default function GraphCanvas(props) {
 				<CircularProgress id="loading" color="success" />
 				<h3>This might take some time</h3>
 			</div>
-			<div id="cyroot">
-			</div>
-			<ul>
+			{factorizedDetails?.map(
+				elt => <NodeDetails x={elt.x} y={elt.y} data={elt.data} 
+									key={elt.detailsID} detailsID={elt.detailsID}
+									rmHandler={rmHandler} dragHandler={dragHandler}/>
+			)}
+			<div id="cyroot"></div>
+			<ul id="btnlist">
 				<li><CanvasButtons id="search" icon="search" type="search" changeCallback={handleSearchChange} submitCallback={handleSearch}/></li>
 				<li><CanvasButtons id="camera" icon="photo_camera" callback={handleScreenshot}/></li>
 				<li><CanvasButtons id="zoom" icon="add" callback={handleZoom}/></li>

@@ -3,7 +3,7 @@
     width: 100%;
 }
 
-#GraphCanvas ul{
+#GraphCanvas #btnlist{
     z-index: 3;
     list-style: none;
     position: absolute;
