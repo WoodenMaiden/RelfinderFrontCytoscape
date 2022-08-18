@@ -109,6 +109,8 @@ export default function InputEntry(props) {
         return () => document.removeEventListener('click', click, true);
     })
 
+    props.clearEvent.addEventListener("clear", () => setEntry(""))
+
     return (
         <Box>
             <div className="controls">
