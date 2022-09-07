@@ -444,21 +444,12 @@ export default function GraphCanvas(props) {
 	}
 
 
-	function dragHandler(e) {
-		const index = factorizedDetails.findIndex(d => d.detailsID === e.detailsID);
-		if (index === -1) return;
-		const suggestion = factorizedDetails[index]
 
-		suggestion.x = suggestion.x + (suggestion.x - e.screenX)
-
-		const newFactorizedDetails = factorizedDetails.map((_,i) => i !== index)
-
-
-		// change (y,x) here
-	}
-
-	function rmHandler(id) {
-		console.log(id) //TODO
+	function rmHandlerDetails(id) {
+		const toDelete = factorizedDetails.find(e => e.detailsID  === id)
+		if (toDelete) 
+			setFactorizedDetails(factorizedDetails.filter(e => e.detailsID !== id))
+		
 	}
 
 	// because the basic zoom depends on the initial layout: a fixed value can be too much
@@ -500,7 +491,7 @@ export default function GraphCanvas(props) {
 			{factorizedDetails?.map(
 				elt => <NodeDetails x={elt.x} y={elt.y} data={elt.data} 
 									key={elt.detailsID} detailsID={elt.detailsID}
-									rmHandler={rmHandler} dragHandler={dragHandler}/>
+									rmHandler={rmHandlerDetails}/>
 			)}
 			<div id="cyroot"></div>
 			<ul id="btnlist">

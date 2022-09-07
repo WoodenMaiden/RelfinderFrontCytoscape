@@ -13,7 +13,9 @@ export default function NodeDetails(props) {
     const x = props.x
     const y = props.y
     const data = props.data
-    const rmHandler = props.rmHandler
+    const rmHandler = function(e) {
+        props.rmHandler(detailsID)
+    }
 
     // this generates subgrids in case we are facing a array or an object
     function drawNestedDetails(obj) {
@@ -22,7 +24,8 @@ export default function NodeDetails(props) {
 
     return (
         <Draggable axis="both" handle=".handle"
-                   bounds="parent">
+                   bounds="parent"
+                   defaultPosition={{x, y}}>
             <Box sx={{
                 display: "flex",
                 flexDirection: "column",
