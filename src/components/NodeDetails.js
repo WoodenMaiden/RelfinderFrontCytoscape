@@ -17,13 +17,71 @@ export default function NodeDetails(props) {
         props.rmHandler(detailsID)
     }
 
-    // this generates subgrids in case we are facing a array or an object
-    function drawNestedDetails(obj) {
-        
+    const bgGrid = {
+        "&:nth-of-type(odd)": {
+            backgroundColor: "#cfcfcf"
+        },
+        "&:nth-of-type(even)": {
+            backgroundColor: "#e1e1e1"
+        }
     }
 
+    // this generates subgrids in case we are facing a array or an object
+    function drawNestedDetails(obj) {
+        if (obj === null || obj === undefined) return; 
+
+        return (
+            <>
+            {Object.keys(obj)?.map((key, index) => {
+                if (obj[key] instanceof Array) {
+                    return (
+                        <Grid container item key={key + index}>
+                            <Grid item>
+                                <Typography variant="body2" component="div">
+                                    {key}: 
+                                </Typography>
+                            </Grid>
+                            <Grid container item>
+                                <ul>
+                                {
+                                    Array.from(obj[key]).map(
+                                        (v, k) => <li key={k}>
+                                            <Typography variant="body2">{v}</Typography>
+                                        </li>
+                                    )                                
+                                }
+                                </ul>
+                            </Grid>
+                        </Grid>
+                    )
+                    
+                }
+                else if (typeof obj[key] === "object") {
+                    return drawNestedDetails(obj[key])
+                }
+                else return (
+                    <Grid container item key={key + index}>
+                        <Grid item>
+                            <Typography variant="body2" component="div">
+                                {key}: 
+                            </Typography>
+                        </Grid>
+                        <Grid item>
+                            <Typography variant="body2" component="div">
+                                {obj[key]}
+                            </Typography>
+                        </Grid>
+                    </Grid>
+                )
+                
+            })}
+            </>
+        )
+    }
+
+
     return (
-        <Draggable axis="both" handle=".handle"
+        <Draggable axis="both" handle={`#handle-${detailsID}`}
                    bounds="parent"
                    defaultPosition={{x, y}}>
             <Box sx={{
@@ -32,10 +90,10 @@ export default function NodeDetails(props) {
                 position: "absolute",
                 zIndex: 95,
                 backgroundColor: "#e0e0e0",
+                borderRadius: "5px",
+                boxShadow: "0px 0px 5px 0px #000000",
                 width: "12em",
                 padding: 0,
-                top: y,
-                left: x,
             }} className="NodeDetails">
                 <Box className="NodeDetailsBar" sx={{
                     width: "100%",
@@ -47,7 +105,7 @@ export default function NodeDetails(props) {
                     pointerEvents: "auto"
                 }}>
                     <span></span>
-                    <div className="handle" style={{
+                    <div id={`handle-${detailsID}`} style={{
                         height: 6,
                         borderRadius: 3,
                         backgroundColor: "#9e9e9e",
@@ -62,17 +120,8 @@ export default function NodeDetails(props) {
                     </IconButton>
                 </Box>
                 <Container>
-                    <Grid container columns={2}>
-                        {Object.keys(data).map(dt => 
-                            <Grid container item key={dt}>
-                                <Grid item>
-                                    <Typography variant="body2">{dt}: </Typography>
-                                </Grid>
-                                <Grid item>
-                                    <Typography variant="body2">{data[dt]}</Typography>
-                                </Grid>
-                            </Grid>
-                        )}
+                    <Grid container columns={2} sx={{ ...bgGrid }}>
+                            {drawNestedDetails(data)} 
                     </Grid>
                 </Container>
             </Box>

@@ -53,24 +53,7 @@ export default function GraphCanvas(props) {
 	Object.defineProperty(Array.prototype, "equals", {enumerable: false});
 
 
-	const [ factorizedDetails, setFactorizedDetails ] = useState([{
-		detailsID: v4(),
-		x:200,
-		y:200,
-		data: {
-			id: "someid",
-			label: "hmmmm",
-			somedata: 10325
-		}
-	}, {
-		detailsID: v4(),
-		x:600,
-		y:400,
-		data: {
-			id: "someOtherid",
-			somedata: ['data', 1456, 'idkwtfisgoingon', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa']
-		}
-	}])
+	const [ factorizedDetails, setFactorizedDetails ] = useState([])
 
 /*
      ____      _
@@ -353,7 +336,12 @@ export default function GraphCanvas(props) {
 		})
 
 		cy.on('tap', 'node', (e) => {
-			//spawn NodeDetails here	
+			setFactorizedDetails([...factorizedDetails, {
+				detailsID: v4(),
+				x: e.originalEvent.x,
+				y: e.originalEvent.y,
+				data: e.target.data() ?? {}
+			}])
 		})
 
 		cy.on("cxttapstart", e => {
