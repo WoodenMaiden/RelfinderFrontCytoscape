@@ -1,13 +1,15 @@
 /* eslint-disable no-extend-native */
+import {v4} from "uuid";
 import {MultiDirectedGraph} from "graphology";
 import cytoscape from "cytoscape/dist/cytoscape.esm";
 import FileSaver from "file-saver"
-import { useEffect } from "react";
-
-import CanvasButtons from "./CanvasButtons";
-import { URL } from "../variables";
+import { useEffect, useState } from "react";
 
 import { CircularProgress } from '@mui/material'
+
+import CanvasButtons from "./CanvasButtons";
+import NodeDetails from "./NodeDetails";
+import { URL } from "../variables";
 
 import "./GraphCanvas.css"
 
@@ -50,6 +52,8 @@ export default function GraphCanvas(props) {
 	// Hide method from for-in loops
 	Object.defineProperty(Array.prototype, "equals", {enumerable: false});
 
+
+	const [ factorizedDetails, setFactorizedDetails ] = useState([])
 
 /*
      ____      _
@@ -111,7 +115,12 @@ export default function GraphCanvas(props) {
 					toDraw.forEachOutNeighbor(node, (neighbor, attribute) => {
 						if (!neighbor.match(/^.+:\/\/.*/ig)){
 							toDraw.forEachDirectedEdge(node, neighbor, (edge, edgeAttribute) => {
-								nodeData[`${edge}`] = neighbor
+								nodeData[
+									`${(edgeAttribute.value.includes('#')
+										? edgeAttribute.value.split('#').slice(-1)
+										: edgeAttribute.value.split('/').slice(-1))
+									}`
+								] = neighbor
 							})
 						}
 					})
@@ -326,6 +335,15 @@ export default function GraphCanvas(props) {
 			}
 		})
 
+		cy.on('tap', 'node', (e) => {
+			setFactorizedDetails([...factorizedDetails, {
+				detailsID: v4(),
+				x: window.innerWidth / 2 + (Math.random() * 100 - 100),
+				y: window.innerHeight / 2 + (Math.random() * 100 - 100),
+				data: e.target.data() ?? {}
+			}])
+		})
+
 		cy.on("cxttapstart", e => {
 			xDragged = e.renderedPosition.x
 			yDragged = e.renderedPosition.y
@@ -413,6 +431,15 @@ export default function GraphCanvas(props) {
 		}), `RFR_${d.getDate()}/${d.getMonth()}/${d.getFullYear()}-${d.getHours()}:${d.getMinutes()}`)
 	}
 
+
+
+	function rmHandlerDetails(id) {
+		const toDelete = factorizedDetails.find(e => e.detailsID  === id)
+		if (toDelete) 
+			setFactorizedDetails(factorizedDetails.filter(e => e.detailsID !== id))
+		
+	}
+
 	// because the basic zoom depends on the initial layout: a fixed value can be too much
 	let zoomRatioBtn
 	function handleZoom(e) {
@@ -449,9 +476,13 @@ export default function GraphCanvas(props) {
 				<CircularProgress id="loading" color="success" />
 				<h3>This might take some time</h3>
 			</div>
-			<div id="cyroot">
-			</div>
-			<ul>
+			{factorizedDetails?.map(
+				elt => <NodeDetails x={elt.x} y={elt.y} data={elt.data} 
+									key={elt.detailsID} detailsID={elt.detailsID}
+									rmHandler={rmHandlerDetails}/>
+			)}
+			<div id="cyroot"></div>
+			<ul id="btnlist">
 				<li><CanvasButtons id="search" icon="search" type="search" changeCallback={handleSearchChange} submitCallback={handleSearch}/></li>
 				<li><CanvasButtons id="camera" icon="photo_camera" callback={handleScreenshot}/></li>
 				<li><CanvasButtons id="zoom" icon="add" callback={handleZoom}/></li>
