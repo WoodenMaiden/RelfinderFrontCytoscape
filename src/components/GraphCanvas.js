@@ -338,8 +338,8 @@ export default function GraphCanvas(props) {
 		cy.on('tap', 'node', (e) => {
 			setFactorizedDetails([...factorizedDetails, {
 				detailsID: v4(),
-				x: e.originalEvent.x,
-				y: e.originalEvent.y,
+				x: window.innerWidth / 2 + (Math.random() * 100 - 100),
+				y: window.innerHeight / 2 + (Math.random() * 100 - 100),
 				data: e.target.data() ?? {}
 			}])
 		})

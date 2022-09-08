@@ -100,6 +100,8 @@ export default function NodeDetails(props) {
                     display: "flex",
                     flexDirection: "row",
                     backgroundColor: "#d1d1d1",
+                    zIndex: 100,
+                    boxShadow: "0px 1px 5px -3px #000000",
                     justifyContent: "space-between",
                     alignItems: "center",
                     pointerEvents: "auto"
@@ -119,7 +121,7 @@ export default function NodeDetails(props) {
                         <CircleIcon fontSize="inherit"/>
                     </IconButton>
                 </Box>
-                <Container>
+                <Container sx={{ backgroundColor: "#cfcfcf", zIndex: 99 }}>
                     <Grid container columns={2} sx={{ ...bgGrid }}>
                             {drawNestedDetails(data)} 
                     </Grid>
