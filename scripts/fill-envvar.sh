@@ -2,12 +2,12 @@
 set -e
 
 variable=/build/src/variables.js
-#variable=/ird/RelfinderFrontCytoscape/src/variables.js
 
 echo 'Fill env variables'
 
 if [ -n "${API_URL}" ]; then 
-    sed -i "/const API_URL/ s/\bnull\b/'$API_URL'/" "$variable"
+    # comma can be used as a separator
+    sed -i "/const API_URL/ s,\bnull\b,'$API_URL'," "$variable"
 fi 
 
 exec "$@"
