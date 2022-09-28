@@ -5,8 +5,6 @@ COPY . /build
 
 WORKDIR /build
 
-#RUN mv scripts/fill-envvar.sh /usr/bin/fill-envvar.sh
-
 RUN apk add --update nodejs npm
 RUN npm i 
 
