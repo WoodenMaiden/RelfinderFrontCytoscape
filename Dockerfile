@@ -1,12 +1,29 @@
-FROM nginx:alpine
+FROM node:16 as build
 
-COPY scripts /usr/bin
-COPY . /build
+WORKDIR /app
+ENV JQ_VERSION=1.6
 
-WORKDIR /build
+ENV API_URL=http://localhost:8080
 
-RUN apk add --update nodejs npm
-RUN npm i 
+RUN wget --no-check-certificate https://github.com/stedolan/jq/releases/download/jq-${JQ_VERSION}/jq-linux64 -O /tmp/jq-linux64
+RUN cp /tmp/jq-linux64 /usr/bin/jq
+RUN chmod +x /usr/bin/jq
 
-ENTRYPOINT [ "/docker-entrypoint.sh", "fill-envvar.sh" ]
-CMD ["start-nginx.sh"]
+COPY . .
+RUN jq 'to_entries | map_values({ (.key) : ("$" + .key) }) | reduce .[] as $item ({}; . + $item)' ./src/config.json > ./src/config.tmp.json && mv ./src/config.tmp.json ./src/config.json
+
+RUN npm ci --silent
+RUN npm run build
+
+
+FROM nginx:latest
+
+ENV JSFOLDER=/usr/share/nginx/html/static/js/*.js
+
+COPY ./scripts/start-nginx.sh /usr/bin/start-nginx.sh
+RUN chmod +x /usr/bin/start-nginx.sh
+WORKDIR /usr/share/nginx/html
+
+COPY --from=0 /app/build .
+
+ENTRYPOINT [ "start-nginx.sh" ]

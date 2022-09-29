@@ -1,11 +1,9 @@
-#!/bin/sh
+#!/usr/bin/env bash
+cp /usr/share/nginx/html/static/js/*.js /tmp
 
-set -e 
-
-npm run build
-
-echo 'Pass production build to nginx & start nginx'
-rm /usr/share/nginx/html/index.html
-mv build/* /usr/share/nginx/html
-
-nginx -g "daemon off;"
+export EXISTING_VARS=$(printenv | awk -F= '{print $1}' | sed 's/^/\$/g' | paste -sd,);
+for file in /tmp/*.js;
+do
+cat $file | envsubst $EXISTING_VARS | tee /usr/share/nginx/html/static/js/$(basename $file) &> /dev/null;
+done
+nginx -g 'daemon off;'
