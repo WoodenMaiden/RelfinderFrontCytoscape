@@ -115,21 +115,38 @@ export default function GraphCanvas(props) {
 					toDraw.forEachOutNeighbor(node, (neighbor, attribute) => {
 						if (!neighbor.match(/^.+:\/\/.*/ig)){
 							toDraw.forEachDirectedEdge(node, neighbor, (edge, edgeAttribute) => {
-								nodeData[
-									`${(edgeAttribute.value.includes('#')
-										? edgeAttribute.value.split('#').slice(-1)
-										: edgeAttribute.value.split('/').slice(-1))
-									}`
-								] = neighbor
+								const predicate = edgeAttribute.value
+							
+								if (nodeData.hasOwnProperty(predicate)) {
+									if (Array.isArray(nodeData[predicate])) nodeData[predicate].push(neighbor)
+									else nodeData[predicate] = [ nodeData[predicate], neighbor ]
+								}
+								else nodeData[predicate] = neighbor
 							})
 						}
 					})
+
+					//here we 'shorten' URI that could be simplified
+					function getPrefix(p){
+						p.includes('#')? p.split('#').slice(-1) : p.split('/').slice(-1)
+					}
+
+					const factorizedNodeData = {}
+					Object.keys(nodeData).forEach(
+						(p, index, entries) => (entries.filter(_p => getPrefix(p) === getPrefix(_p)).length > 1)
+							? factorizedNodeData[p] = nodeData[p]
+							: factorizedNodeData[getPrefix(p)] = nodeData[p]
+					)
+
 					cy.add({
 						group: 'nodes',
 						data: {
 							id: node,
-							label: node,
-							...nodeData
+							label: nodeData.label ?? node,
+							nodeData : { ...factorizedNodeData }
+							// we isolate the entity data into a nested because an otonlogy predicate
+							// with the wrong name could override important keys
+							// for instance http://owl.com/example#id could ovverride node.data.id and provoke a crash
 						},
 						selected: false,
 						selectable: true,
@@ -340,7 +357,7 @@ export default function GraphCanvas(props) {
 				detailsID: v4(),
 				x: window.innerWidth / 2 + (Math.random() * 100 - 100),
 				y: window.innerHeight / 2 + (Math.random() * 100 - 100),
-				data: e.target.data() ?? {}
+				data: e.target.data()?.nodeData ?? e.target.data() ?? {}
 			}])
 		})
 
