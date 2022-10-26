@@ -1,12 +1,24 @@
 import { useEffect, useState } from "react";
 
 import InputForm from "./InputForm";
+import "./BugReportForm";
 
 import { Resizable } from "react-resizable";
-import { Help, FormatQuote, GitHub, BubbleChart, Search, Add, Remove, ChevronLeft, CameraAlt } from '@mui/icons-material'
+import { Help,
+    FormatQuote, 
+    GitHub, 
+    BubbleChart, 
+    Search, 
+    Add, 
+    Remove, 
+    ChevronLeft, 
+    CameraAlt,
+    BugReport
+} from '@mui/icons-material'
 import { Box, Switch, Slider, FormControlLabel, Tabs, Tab, IconButton } from '@mui/material'
 
 import "./Pannel.css"
+import BugReportForm from "./BugReportForm";
 
 export default function Pannel(props) {
     const MAX_DEPTH = 5
@@ -97,6 +109,7 @@ export default function Pannel(props) {
                                     <Tab value={1} icon={<GitHub />} />
                                     <Tab value={2} icon={<Help />} />
                                     <Tab value={3} icon={<FormatQuote />} />
+                                    <Tab value={4} icon={<BugReport />} />
                                 </Tabs>
                             </Box>
                         </Box>
@@ -135,6 +148,11 @@ export default function Pannel(props) {
                                 <code>Cytoscape JS:</code> <p>Cytoscape.js: a graph theory library for visualisation and analysis<br/><br/>Franz M, Lopes CT, Huck G, Dong Y, Sumer O, Bader GD</p>
                                 <code>Graphology JS:</code> <p>Guillaume Plique. (2021). Graphology, a robust and multipurpose Graph object for JavaScript.<br/><br/>Zenodo. <a target="_blank" href="https://doi.org/10.5281/zenodo.5681257">https://doi.org/10.5281/zenodo.5681257</a></p>
                                 <code>Sparql-http-client: </code> <p><a target="_blank" href="https://github.com/zazuko/sparql-http-client">https://github.com/zazuko/sparql-http-client</a></p>
+                            </Box>
+
+                            <Box className="pannelShow" id="bug" sx={{display: (value === 4)? "block": "none"}}>
+                                <h4>Report a bug</h4>
+                                <BugReportForm />
                             </Box>
                         </Box>
                     </Box>
