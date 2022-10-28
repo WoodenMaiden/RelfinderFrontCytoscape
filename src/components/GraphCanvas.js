@@ -445,8 +445,9 @@ export default function GraphCanvas(props) {
 	function handleScreenshot(e) {
 		const d = new Date()
 		FileSaver.saveAs(cy.png({
-			output: 'blob'
-		}), `RFR_${d.getDate()}/${d.getMonth()}/${d.getFullYear()}-${d.getHours()}:${d.getMinutes()}`)
+			output: 'blob',
+			bg: "#FFFFFF"
+		}), `RFR_${d.getDate()}/${d.getMonth()}/${d.getFullYear()}-${d.getHours()}h${d.getMinutes()}m${d.getSeconds()}`)
 	}
 
 
