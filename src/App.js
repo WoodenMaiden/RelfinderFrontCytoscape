@@ -39,7 +39,7 @@ function App() {
 
   return (
     <div className="App">
-        <input type="hidden" id="switch" value={factorized}/>
+    
         <GraphCanvas nodes={entries} factorized={factorized} depth={depth}/>
         <Pannel switchCallback={handleSwitch} submitCallback={handleSubmit} depthCallback={handleDepth}/>
     </div>
