@@ -127,22 +127,23 @@ export default function GraphCanvas(props) {
 					})
 
 					//here we 'shorten' URI that could be simplified
-					function getPrefix(p){
-						p.includes('#')? p.split('#').slice(-1) : p.split('/').slice(-1)
-					}
+					let getPrefix = (p) => p.includes('#')
+						? p.substring(p.lastIndexOf('#') + 1)
+						: p.substring(p.lastIndexOf('/') + 1);
 
 					const factorizedNodeData = {}
 					Object.keys(nodeData).forEach(
-						(p, index, entries) => (entries.filter(_p => getPrefix(p) === getPrefix(_p)).length > 1)
-							? factorizedNodeData[p] = nodeData[p]
-							: factorizedNodeData[getPrefix(p)] = nodeData[p]
+						(p, index, dt) => 
+							(dt.findIndex((_p, _index) => getPrefix(p) === getPrefix(_p) && _index !== index) >= 0)
+								? factorizedNodeData[p] = nodeData[p]
+								: factorizedNodeData[getPrefix(p)] = nodeData[p]
 					)
 
 					cy.add({
 						group: 'nodes',
 						data: {
 							id: node,
-							label: nodeData.label ?? node,
+							label: factorizedNodeData.label ?? node,
 							nodeData : { ...factorizedNodeData }
 							// we isolate the entity data into a nested because an otonlogy predicate
 							// with the wrong name could override important keys
