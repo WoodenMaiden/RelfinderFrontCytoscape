@@ -1,9 +1,11 @@
 FROM node:16 as build
 
+# https://developers.redhat.com/blog/2021/03/04/making-environment-variables-accessible-in-front-end-containers#inject_the_environment_variables
+
 WORKDIR /app
 ENV JQ_VERSION=1.6
 
-ENV API_URL=http://localhost:8080
+ENV RFR_API_URL=http://localhost:8080
 
 RUN wget --no-check-certificate https://github.com/stedolan/jq/releases/download/jq-${JQ_VERSION}/jq-linux64 -O /tmp/jq-linux64
 RUN cp /tmp/jq-linux64 /usr/bin/jq
