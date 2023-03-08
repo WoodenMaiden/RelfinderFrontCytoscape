@@ -1,14 +1,17 @@
 # RelfinderReformed frontend
 
 ## What is this ?
-Relfinder is an implementation of the now deprecated [relfinder](http://www.visualdataweb.org/relfinder.php). Paired with an [API](https://github.com/WoodenMaiden/RelfinderReformedAPI) it will show  the relations betwwen two rdf entities.
+
+Relfinder is an implementation of the now deprecated [relfinder](http://www.visualdataweb.org/relfinder.php). Paired with an [API](https://github.com/WoodenMaiden/RelfinderReformedAPI) it will show the relations between rdf entities.
 
 ## Env variables
-| Name | Required - default value| Description|
-|-|-|-|
-| API_URL | :x: - ``http://localhost:8080`` | URL to a [RelfinderReformed API](https://github.com/WoodenMaiden/RelfinderReformedAPI)|
+
+| Name        | Required - default value      | Description                                                                            |
+| ----------- | ----------------------------- | -------------------------------------------------------------------------------------- |
+| RFR_API_URL | :x: - `http://localhost:8080` | URL to a [RelfinderReformed API](https://github.com/WoodenMaiden/RelfinderReformedAPI) |
 
 ## Build and run the project
+
 ### Manually
 
 ```sh
@@ -26,5 +29,5 @@ serve -s build
 
 ```sh
 docker build . -t rfrfront
-docker run -e API_URl=http://someurltoanapi.com rfrfront
+docker run -e RFR_API_URL=http://someurltoanapi.com rfrfront
 ```
