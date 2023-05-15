@@ -3,8 +3,26 @@ import { useEffect, useState } from "react";
 import InputForm from "./InputForm";
 
 import { Resizable } from "react-resizable";
-import { Help, FormatQuote, GitHub, BubbleChart, Search, Add, Remove, ChevronLeft, CameraAlt } from '@mui/icons-material'
-import { Box, Switch, Slider, FormControlLabel, Tabs, Tab, IconButton } from '@mui/material'
+import {
+    Help,
+    FormatQuote,
+    GitHub,
+    BubbleChart,
+    Search,
+    Add,
+    Remove,
+    ChevronLeft,
+    CameraAlt
+} from '@mui/icons-material'
+import {
+    Box,
+    Switch,
+    Slider,
+    FormControlLabel,
+    Tabs,
+    Tab,
+    IconButton
+} from '@mui/material'
 
 import "./Pannel.css"
 
@@ -91,14 +109,22 @@ export default function Pannel(props) {
                     <Box id="pannel" sx={{paddingLeft: '5px'}}>
                         <Box id="pannelHeader">
                             <h3>RF Reformed</h3>
-                            <Box id="aboutDiv" sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                                <Tabs value={value} onChange={handleChange} textColor="secondary" indicatorColor="secondary">
-                                    <Tab value={0} icon={<BubbleChart />} />
-                                    <Tab value={1} icon={<GitHub />} />
-                                    <Tab value={2} icon={<Help />} />
-                                    <Tab value={3} icon={<FormatQuote />} />
-                                </Tabs>
-                            </Box>
+                            <Tabs
+                                value={value}
+                                onChange={handleChange}
+                                textColor="secondary"
+                                indicatorColor="secondary"
+                                variant="fullWidth"
+                                sx={{
+                                    borderBottom: 1,
+                                    borderColor: 'divider'
+                                }}
+                            >
+                                <Tab value={0} icon={<BubbleChart />} />
+                                <Tab value={1} icon={<GitHub />} />
+                                <Tab value={2} icon={<Help />} />
+                                <Tab value={3} icon={<FormatQuote />} />
+                            </Tabs>
                         </Box>
 
                         <Box id="pannelBody">
