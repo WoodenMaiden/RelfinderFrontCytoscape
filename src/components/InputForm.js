@@ -1,12 +1,23 @@
 import React, { useState } from 'react';
+import { Stack, Button } from "@mui/material";
+import AddIcon from '@mui/icons-material/Add';
+import RotateLeftIcon from '@mui/icons-material/RotateLeft';
+import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 
 import InputEntry from './InputEntry';
+import { v4 } from "uuid";
 
 import './inputForm.css'
 
 export default function InputForm(props) {
     const MININPUT = 2
-    const [inputArray, setInputArray] = useState([1,2])
+    const [inputArray, setInputArray] = useState([{
+        id: v4(),
+        entry: "",
+    },{
+        id: v4(),
+        entry: "",
+    }])
 
     const submit = props.submitCallback
 
@@ -16,9 +27,6 @@ export default function InputForm(props) {
         }
     }()
 
-    function add(e) {
-        setInputArray(old => [ ...old, inputArray[inputArray.length - 1] + 1])
-    }
 
 /*
 | | | | __ _ _ __   __| | | ___ _ __ ___
@@ -26,41 +34,61 @@ export default function InputForm(props) {
 |  _  | (_| | | | | (_| | |  __/ |  \__ \
 |_| |_|\__,_|_| |_|\__,_|_|\___|_|  |___/
 */
-    function rm(e) {
+
+    function rm(idToRm) {
         if (inputArray.length <= MININPUT) return;
 
-        const trgt = (!e.target.id) ? e.target.parentNode.id: e.target.id
-        const number = parseInt(trgt.match(/(\d+)$/)[1])
-
-        setInputArray(arr => arr.filter(elt => elt !== number))
+        setInputArray(arr => arr.filter(elt => elt.id !== idToRm))
     }
 
+    function add() {
+        setInputArray(old => [ ...old, {
+            id: v4(),
+            entry: "",
+        }])
+    }
+
+    function change(id, value) {
+        setInputArray(old => old.map(elt => {
+            if (elt.id === id) {
+                return { ...elt, entry: value }
+            }
+            return elt
+        }))
+    }
 
 
     return (
         <form id="rfrform" autoComplete="off" onSubmit={submit}>
-            <div id="inputs">
-                {inputArray.map(item => <InputEntry key={item} input={item} clearEvent={clearEvent} rmHandler={rm}/>)}
-            </div>
-            <div className="controls">
-                <button type="button" onClick={add}>
-                    <span className="material-icons-round clickable">
-                        add
-                    </span>
-                </button>
-                <button type="reset" onClick={() => clearEvent.clearFields()}>
-                    <span className="material-icons-round clickable">
-                        refresh
-                    </span>
-                </button>
-            </div>
-
-            <button type="submit" className="clickable">
-                <h5>Find relations</h5>
-                <i className="material-icons-round">
-                    hub
-                </i>
-            </button>
+            <Stack spacing={2}>
+                <Stack spacing={1}>
+                    {inputArray.map(item =>
+                        <InputEntry
+                            key={item.id}
+                            id={item.id}
+                            clearEvent={clearEvent}
+                            rmHandler={rm}
+                            changeHandler={change}
+                        />
+                    )}
+                </Stack>
+                <Stack direction="row" alignItems="stretch" gap="5px">
+                    <Button onClick={add} variant="contained" fullWidth>
+                        <AddIcon />
+                    </Button>
+                    <Button
+                        variant="contained"
+                        type="reset"
+                        onClick={() => clearEvent.clearFields()}
+                        fullWidth
+                    >
+                        <RotateLeftIcon />
+                    </Button>
+                </Stack>
+                <Button startIcon={<DeviceHubIcon/>} variant="contained" type="submit" fullWidth>
+                    Find relations
+                </Button>
+            </Stack>
         </form>
     )
 }
