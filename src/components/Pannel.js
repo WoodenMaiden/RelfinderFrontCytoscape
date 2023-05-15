@@ -41,6 +41,7 @@ export default function Pannel(props) {
 
     const middleSubmit = props.submitCallback
     const handleSwitch = props.switchCallback
+    const middleInput = props.changeInputsCallback
 
     function deploy(deployed) {
         const pannel = document.getElementById('pannel')
@@ -130,7 +131,7 @@ export default function Pannel(props) {
                         <Box id="pannelBody">
                             <Box className="pannelShow" id="entries" sx={{display: (value === 0)? "block": "none"}}>
                                 <h4>Entries</h4>
-                                    <InputForm submitCallback={middleSubmit}/> 
+                                    <InputForm submitCallback={middleSubmit} changeInputsCallback={middleInput}/> 
                                     <Box sx={{display: "flex", flexDirection: "column", padding: "10px"}}>
                                         <FormControlLabel control={<Switch onChange={handleSwitch} defaultChecked/>} label="Factorize graph" />
                                         <FormControlLabel sx={{m: 0, width : (isDeployed)? "100%": 0}} control={<Slider onChange={props.depthCallback} 
