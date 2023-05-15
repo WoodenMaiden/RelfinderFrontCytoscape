@@ -4,13 +4,17 @@ import {
     Stack, 
     Typography, 
     CircularProgress,
+    TextField,
+    Button
 } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 
 import { URL } from "../variables";
 
 export default function InputEntry(props) {
     const rmHandler =  props.rmHandler
-    const input = props.input
+    const changeHandler = props.changeHandler
+    const id = props.id
 
     const [ timeoutID, setTimeoutID ] = useState(setTimeout(()=> { return true;}, 0))
     const [ selectedSuggestion, setSelectedSuggestion ] = useState(false) //this will prevent from fetching suggestions when selecting one
@@ -23,7 +27,7 @@ export default function InputEntry(props) {
 
         //TODO pass aborter to function in timeout
         return setTimeout(async () => {
-            const sugBox = document.getElementById(`suggestions${input}`)
+            const sugBox = document.getElementById(`suggestions${id}`)
             setSuggestions([]) // to trigger loading animation
             sugBox.style.display = 'block'
 
@@ -59,7 +63,7 @@ export default function InputEntry(props) {
 */
 
     function selectSuggestion(sug) {
-        const sugBox = document.getElementById(`suggestions${input}`)
+        const sugBox = document.getElementById(`suggestions${id}`)
 
         sugBox.style.display = 'none'
         setSuggestions([])
@@ -73,13 +77,16 @@ export default function InputEntry(props) {
             && !e.target.className.includes('suggestionItem') 
             ){ 
 
-            document.getElementById(`suggestions${input}`).style.display = 'none' 
+            document.getElementById(`suggestions${id}`).style.display = 'none'
             setSuggestions([]);
         }
     }
 
-    function entryChanges(e) {
-        setEntry(e.target?.value)
+    function entryChanges(event) {
+        const text = event.target.value.trim()
+
+        setEntry(text)
+        changeHandler(id, text)
     }
 
 
@@ -95,7 +102,7 @@ export default function InputEntry(props) {
         clearTimeout(timeoutID)
 
         if (entry.trim() === "") {
-            document.getElementById(`suggestions${input}`).style.display = 'none'
+            document.getElementById(`suggestions${id}`).style.display = 'none'
             setSuggestions([])
         } else {
             //if the value hasn't been filled via from the suggestion list fetch selections,
@@ -104,7 +111,7 @@ export default function InputEntry(props) {
         }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [entry, input])
+    }, [entry, id])
 
     useEffect(() => {
         document.addEventListener('click', click, true)
@@ -115,15 +122,23 @@ export default function InputEntry(props) {
 
     return (
         <Box>
-            <div className="controls">
-                <input type="search" onChange={entryChanges} value={entry} name={input} id={`input${input}`} placeholder="URI or label"/>
-                <button className="clickable" type="button" id={`rm${input}`} onClick={rmHandler}>
-                    <span className="material-icons-round">
-                        close
-                    </span>
-                </button>
-            </div>
-            <Box className='suggestions' id={`suggestions${input}`} sx={{
+            <Stack direction="row" spacing={1}>
+                <TextField
+                    variant="filled"
+                    onChange={entryChanges}
+                    value={entry}
+                    placeholder="URI or label"
+                    fullWidth
+                    style={{
+                        flexGrow: 8,
+                    }}
+                />
+                <Button onClick={() => rmHandler(id)} variant="outlined" sx={{flexGrow: 1}}>
+                    <CloseIcon />
+                </Button>
+            </Stack>
+            <Box id={`suggestions${id}`} sx={{
+                zIndex: 99999,
                 backgroundColor: '#ffffff', 
                 position: 'absolute',
                 display: 'none',

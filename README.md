@@ -7,8 +7,17 @@ Relfinder is an implementation of the now deprecated [relfinder](http://www.visu
 ## Env variables
 
 | Name        | Required - default value      | Description                                                                            |
-| ----------- | ----------------------------- | -------------------------------------------------------------------------------------- |
+|-------------|-------------------------------|----------------------------------------------------------------------------------------|
 | RFR_API_URL | :x: - `http://localhost:8080` | URL to a [RelfinderReformed API](https://github.com/WoodenMaiden/RelfinderReformedAPI) |
+
+## Run locally with ``npm``
+
+```bash
+npm run start
+# if you want to change the api url with an env variable prefix it with ``REACT_APP_``
+# React does that for security reasons
+REACT_APP_RFR_API_URL=http://some_url_to_an_api.com npm run start
+```
 
 ## Build and run the project
 

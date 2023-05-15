@@ -15,7 +15,7 @@ import "./GraphCanvas.css"
 
 var lastInputs
 var lastDepth
-var lastGraph // we use var so we can access these from the component
+var lastGraph // we use var, so we can access these from the component
 export default function GraphCanvas(props) {
 
 	let xDragged
@@ -145,9 +145,9 @@ export default function GraphCanvas(props) {
 							id: node,
 							label: factorizedNodeData.label ?? node,
 							nodeData : { ...factorizedNodeData }
-							// we isolate the entity data into a nested because an otonlogy predicate
+							// we isolate the entity data into a nested because an ontology predicate
 							// with the wrong name could override important keys
-							// for instance http://owl.com/example#id could ovverride node.data.id and provoke a crash
+							// for instance http://owl.com/example#id could override node.data.id and provoke a crash
 						},
 						selected: false,
 						selectable: true,
@@ -279,8 +279,7 @@ export default function GraphCanvas(props) {
 					body: raw,
 					redirect: "follow"
 				};
-				//const URL = (process.env.REACT_APP_API_URL.slice(-1) === "/") ? process.env.REACT_APP_API_URL.slice(0, -1) : process.env.REACT_APP_API_URL
-	
+
 				const fetchResult = await fetch(`${URL}/relfinder/${props.depth}`, requestOptions)
 				const json = await fetchResult.json()
 				graph.import(json)
@@ -493,7 +492,7 @@ export default function GraphCanvas(props) {
 		<div id="GraphCanvas">
 			<div style={{display: "none"}} id="loadingdiv">
 				<CircularProgress id="loading" color="success" />
-				<h3>This might take some time</h3>
+				<h3>Loading...</h3>
 			</div>
 			{factorizedDetails?.map(
 				elt => <NodeDetails x={elt.x} y={elt.y} data={elt.data} 

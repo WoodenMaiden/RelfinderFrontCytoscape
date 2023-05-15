@@ -35,11 +35,6 @@
   transition: width 0.5s ease-in-out;
 }
 
-#aboutDiv {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-}
 
 .pannelShow p {
   font-size: 0.5em;
