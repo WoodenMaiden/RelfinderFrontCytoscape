@@ -20,6 +20,7 @@ export default function InputForm(props) {
     }])
 
     const submit = props.submitCallback
+    const inputChange = props.changeInputsCallback
 
     const clearEvent = new class ClearEvent extends EventTarget {
         clearFields() {
@@ -38,23 +39,30 @@ export default function InputForm(props) {
     function rm(idToRm) {
         if (inputArray.length <= MININPUT) return;
 
-        setInputArray(arr => arr.filter(elt => elt.id !== idToRm))
+        const newInputs = inputArray.filter(elt => elt.id !== idToRm)
+
+        setInputArray(newInputs)
+        inputChange(newInputs.map(elt => elt.entry))
     }
 
     function add() {
-        setInputArray(old => [ ...old, {
+        const newInputs = [...inputArray, {
             id: v4(),
             entry: "",
-        }])
+        }]
+        setInputArray(newInputs)
+        inputChange(newInputs.map(elt => elt.entry))
     }
 
     function change(id, value) {
-        setInputArray(old => old.map(elt => {
+        const newInputs = inputArray.map(elt => {
             if (elt.id === id) {
                 return { ...elt, entry: value }
             }
             return elt
-        }))
+        })
+        setInputArray(newInputs)
+        inputChange(newInputs.map(elt => elt.entry))
     }
 
 

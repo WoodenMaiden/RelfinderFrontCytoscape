@@ -69,6 +69,7 @@ export default function InputEntry(props) {
         setSuggestions([])
         setSelectedSuggestion(true)
         setEntry(sug.s)
+        changeHandler(id, sug.s)
     }
 
     function click(e) {
