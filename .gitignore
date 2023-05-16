@@ -2,6 +2,8 @@
 
 #IDE
 .idea
+.vscode
+*.iml
 
 # dependencies
 /node_modules
