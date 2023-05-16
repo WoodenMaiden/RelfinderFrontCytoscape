@@ -1,17 +1,28 @@
 
 import { useReducer } from "react";
 import { CircularProgress } from "@mui/material";
-import NodeDetails from "./components/NodeDetails";
 import CytoscapeComponent from "react-cytoscapejs";
-import MultiDirectedGraph from "graphology";
+import { MultiDirectedGraph } from "graphology";
+import FileSaver from "file-saver"
 
+import SearchIcon from '@mui/icons-material/Search';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
 
+import NodeDetails from "./components/NodeDetails";
+import CanvasButton from "./components/CanvasButtons";
 import Pannel from "./components/Pannel"
 import { URL } from "./variables"
 import { listeners } from "./lib/cytoscape";
-import draw from "./lib/draw";
 
 import './App.css';
+import SearchBar from "./components/SearchBar";
+
+import draw, { 
+  focusNodeAndNeighbors, 
+  unFocusNodeAndNeighbors 
+} from "./lib/draw";
 
 function App() {
   const [ state, dispatchState ] = useReducer(
@@ -68,6 +79,12 @@ function App() {
             nodes: action.nodes,
             edges: action.edges
           }
+        case "changePan":
+          return {
+            ...state,
+            pan: action.pan
+          }
+
         default: return state
       }
     },
@@ -79,11 +96,26 @@ function App() {
       nodeDetails: [],
       searchMode: false,
       nodes: [],
-      edges: []
+      edges: [],
+      pan: { 
+        position: { x: 0, y: 0 }, 
+        zoom: 1 
+      },
     }
   )
 
   const cytoscapeStyle = [
+    {
+      selector: 'node,edge',
+      style: {
+        'text-background-opacity': .8,
+        'text-background-color': '#e0e0e0',
+        'text-background-shape': 'roundrectangle',
+        'text-border-width': .5,
+        'text-border-color': '#000000',
+        'text-border-opacity': .8,
+      }
+    },
     {
       selector: '.Entity',
       style: {
@@ -203,6 +235,7 @@ function App() {
       })
       
     } catch (e) {
+      console.error(e)
       dispatchState("changeNodes", [
         {
           group: 'nodes',
@@ -236,6 +269,29 @@ function App() {
     })
   }
 
+  function zoomHandler(cytoscapeInstance, level) {
+    cytoscapeInstance.zoom({
+      level: cytoscapeInstance.zoom() + level,
+      renderedPosition: { x: cytoscapeInstance.pan().x/2, y: cytoscapeInstance.pan().y/2 }
+    })
+  }
+
+  function handleScreenshot(cytoscapeInstance) {
+		const d = new Date()
+		FileSaver.saveAs(cytoscapeInstance.png({
+			output: 'blob',
+			bg: "#FFFFFF"
+		}), `RFR_${d.getDate()}/${d.getMonth()}/${d.getFullYear()}-${d.getHours()}h${d.getMinutes()}m${d.getSeconds()}`)
+	}
+
+  function handleSearchSuggestions(nodes, entry) {
+    entry = entry.trim()
+    return entry === "" ? []:  nodes.filter(node => 
+      node.data.label?.toLowerCase().includes(entry.toLowerCase())
+    ).map(node => node.data.label)
+  }
+
+  let cytoscape; // a handle to the cytoscape instance to be used in handlers
   return (
     <div className="App">
       <Pannel
@@ -257,10 +313,19 @@ function App() {
                       rmHandler={rmHandlerDetails}/>
         )}
         <CytoscapeComponent stylesheet={cytoscapeStyle} layout={layoutOptions} 
-          elements={[ ...state.nodes, ...state.edges ]} pan={{ x:0, y:0 }}
-          zoom={1} cy={(cy) => {
+          elements={[ ...state.nodes, ...state.edges ]} pan={{ ...state.pan.position }}
+          zoom={state.pan.zoom} cy={(cy) => {
             cy.removeAllListeners()
-
+            
+            cy.on("scrollzoom", (e) => {
+              // dispatchState({
+              //   type: "changePan",
+              //   pan: {
+              //     position: { ...e.cy.pan()},
+              //     zoom: e.cy.zoom()
+              //   }
+              // })
+            })
             cy.on("mouseover", listeners.get("mouseover"))
             cy.on("mouseout", listeners.get("mouseout"))
             cy.on("tap", "node", (e) => {
@@ -270,14 +335,45 @@ function App() {
               })
             })
 
+            cytoscape = cy
           }}
           style={{width: "100%", height: "100%"}}
         />
         <ul id="btnlist">
-          {/*<li><CanvasButtons id="search" icon="search" type="search" changeCallback={handleSearchChange} submitCallback={handleSearch}/></li>*/}
-          {/*<li><CanvasButtons id="camera" icon="photo_camera" callback={handleScreenshot}/></li>*/}
-          {/*<li><CanvasButtons id="zoom" icon="add" callback={handleZoom}/></li>*/}
-          {/*<li><CanvasButtons id="dezoom" icon="remove" callback={handleZoom}/></li>*/}
+          <li>
+            <CanvasButton icon={<SearchIcon />}>
+              <SearchBar suggestionLogic={
+                (entry) => handleSearchSuggestions(state.nodes, entry)
+              }
+              confirmEntry={
+                (entry) => { 
+                  focusNodeAndNeighbors(
+                    cytoscape.$(`node[label = "${entry}"]`)[0],
+                    cytoscape.elements()
+                  )
+                }
+              }
+              resetEntry={
+                () => unFocusNodeAndNeighbors(cytoscape.elements())
+              }
+              />
+            </CanvasButton>
+          </li>
+          <li>
+            <CanvasButton icon={<CameraAltIcon />} clickCallback={
+              () => handleScreenshot(cytoscape)
+            }/>
+          </li>
+          <li>
+            <CanvasButton icon={<AddIcon />} clickCallback={
+              () => zoomHandler(cytoscape, 0.1)
+            }/>
+          </li>
+          <li>
+            <CanvasButton icon={<RemoveIcon/>} clickCallback={
+              () => zoomHandler(cytoscape, -0.1)
+            }/>
+          </li>
         </ul>
       </div>
     </div>

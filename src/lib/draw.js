@@ -1,7 +1,3 @@
-
-
-
-
 export default function draw(graph, isFactorized = false, entryNodes = []) {
     const nodes = [], edges = []
     const isEntity = (e) => !!e.match(/^.+:\/\/.*/ig)
@@ -95,3 +91,22 @@ export default function draw(graph, isFactorized = false, entryNodes = []) {
 
     return { nodes, edges }
 }
+
+export function focusNodeAndNeighbors(target, elements) {
+    for (const elt of elements) {
+        if (target.neighborhood().includes(elt) || elt === target){
+            elt.style('label', elt.json().data.label);
+            continue
+        }
+        elt.style('background-opacity', 0.05);
+        elt.style('line-opacity', 0.05);
+    }
+} 
+
+export function unFocusNodeAndNeighbors(elements) {
+    for (const elt of elements) {
+        elt.style('label', null)
+        elt.style('background-opacity', 1);
+        elt.style('line-opacity', 1);
+    }
+} 

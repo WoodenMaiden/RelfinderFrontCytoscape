@@ -143,8 +143,8 @@ export default function Pannel(props) {
 
                             <Box className="pannelShow" id="repo" sx={{display: (value === 1)? "block": "none"}}>
                                 <h4>Repositories</h4>
-                                <code>This frontend:</code> <p><a target="_blank" href="https://github.com/WoodenMaiden/RelfinderFrontCytoscape">https://github.com/WoodenMaiden/RelfinderFrontCytoscape</a></p>
-                                <code>Relfinder API:</code> <p><a target="_blank" href="https://github.com/WoodenMaiden/RelFinderReformedNode">https://github.com/WoodenMaiden/RelFinderReformedNode</a></p>
+                                <code>This frontend:</code> <p><a target="_blank" rel="noreferrer" href="https://github.com/WoodenMaiden/RelfinderFrontCytoscape">https://github.com/WoodenMaiden/RelfinderFrontCytoscape</a></p>
+                                <code>Relfinder API:</code> <p><a target="_blank" rel="noreferrer" href="https://github.com/WoodenMaiden/RelFinderReformedNode">https://github.com/WoodenMaiden/RelFinderReformedNode</a></p>
                             </Box>
 
                             <Box className="pannelShow" id="about" sx={{display: (value === 2)? "block": "none"}}>
