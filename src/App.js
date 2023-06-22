@@ -24,6 +24,8 @@ import draw, {
   unFocusNodeAndNeighbors 
 } from "./lib/draw";
 
+import cytoscapeStyle from "./cytoscape-style.json";
+
 function App() {
   const [ state, dispatchState ] = useReducer(
     (state, action) => {
@@ -104,71 +106,20 @@ function App() {
     }
   )
 
-  const cytoscapeStyle = [
-    {
-      selector: 'node,edge',
-      style: {
-        'text-background-opacity': .8,
-        'text-background-color': '#e0e0e0',
-        'text-background-shape': 'roundrectangle',
-        'text-border-width': .5,
-        'text-border-color': '#000000',
-        'text-border-opacity': .8,
-      }
-    },
-    {
-      selector: '.Entity',
-      style: {
-        'background-color': 'red'
-      }
-    },
-    {
-      selector: '.Literal',
-      style: {
-        'background-color': 'green'
-      }
-    },
-    {
-      selector: '.EntryNode',
-      style: {
-        'shape': 'round-triangle',
-        'label': 'data(label)'
-      }
-    },
-    {
-      selector: 'edge',
-      style: {
-        'curve-style': 'bezier',
-        'target-arrow-shape': 'triangle',
-      }
-    },
-    {
-      selector: '.ErrorNode',
-      style: {
-        'background-color': '#a32222',
-        'shape': 'ellipse',
-        'width': '100%',
-        'height': '25%',
-        'content': 'data(id)',
-        'color': '#ffffff',
-        'text-valign': 'center',
-        'text-halign': 'center',
-        'text-outline-width': 2,
-        'text-outline-color': '#a32222',
-      }
-    }
-  ]
+  // const layoutOptions = {
+  //   name: 'breadthfirst',
 
-  const layoutOptions = {
-    name: 'breadthfirst',
+  //   ready: function (e) {
+  //     e.cy.nodes().forEach(function (n) {
+  //         console.log(n)
+  //         n.position(n.position())
+  //     })
+  //   },
 
-    ready: function () {
+  //   stop: function () {
       
-    },
-    stop: function () {
-      
-    }
-  }
+  //   }
+  // }
 
   /*
   | | | | __ _ _ __   __| | | ___ _ __ ___
@@ -223,7 +174,9 @@ function App() {
               classes: ['ErrorNode']
             }
           ]
-        }); return;
+        })
+
+        return;
       }
 
       const { nodes, edges } = draw(graph, state.factorized, state.entries)
@@ -245,6 +198,14 @@ function App() {
           classes: ['ErrorNode']
         }
       ])
+    } finally {
+      dispatchState({
+        type: "changePan",
+        pan: {
+          position: { x: 0, y: 0 },
+          zoom: 1
+        }
+      })
     }
   }
 
@@ -270,9 +231,15 @@ function App() {
   }
 
   function zoomHandler(cytoscapeInstance, level) {
-    cytoscapeInstance.zoom({
-      level: cytoscapeInstance.zoom() + level,
-      renderedPosition: { x: cytoscapeInstance.pan().x/2, y: cytoscapeInstance.pan().y/2 }
+    dispatchState({
+      type: "changePan",
+      pan: { 
+        position: {
+          x: cytoscapeInstance.pan().x/2,
+          y: cytoscapeInstance.pan().y/2
+        },
+        zoom: cytoscapeInstance.zoom() + level 
+      }
     })
   }
 
@@ -312,32 +279,27 @@ function App() {
                       key={elt.detailsID} detailsID={elt.detailsID}
                       rmHandler={rmHandlerDetails}/>
         )}
-        <CytoscapeComponent stylesheet={cytoscapeStyle} layout={layoutOptions} 
-          elements={[ ...state.nodes, ...state.edges ]} pan={{ ...state.pan.position }}
-          zoom={state.pan.zoom} cy={(cy) => {
-            cy.removeAllListeners()
-            
-            cy.on("scrollzoom", (e) => {
-              // dispatchState({
-              //   type: "changePan",
-              //   pan: {
-              //     position: { ...e.cy.pan()},
-              //     zoom: e.cy.zoom()
-              //   }
-              // })
-            })
-            cy.on("mouseover", listeners.get("mouseover"))
-            cy.on("mouseout", listeners.get("mouseout"))
-            cy.on("tap", "node", (e) => {
-              dispatchState({
-                type: "addNodeDetails",
-                nodeDetails: listeners.get("tap")(e)
-              })
-            })
+        <CytoscapeComponent stylesheet={cytoscapeStyle} //layout={layoutOptions}
+          elements={[ ...state.nodes, ...state.edges ]} wheelSensitivity={0.3}
+          style={{width: "100%", height: "100%"}} panningEnabled={true}
+          userPanningEnabled={true} userZoomingEnabled={true}
+          minZoom={0.1} maxZoom={2} pan={state.pan.position}
+          cy={
+            (cy) => {
+              cy.pan(state.pan.position)
+              cy.zoom(state.pan.zoom)
+              
+              cy.removeAllListeners()
+              
+              cy.on("scrollzoom", e => listeners.get("scrollzoom")(e, dispatchState))
+              cy.on("mouseover", listeners.get("mouseover"))
+              cy.on("mouseout", listeners.get("mouseout"))
+              cy.on("tap", "node", e => listeners.get("tap")(e, dispatchState))
+              cy.on("tapend", e => listeners.get("tapend_canvas")(e, dispatchState))
 
-            cytoscape = cy
-          }}
-          style={{width: "100%", height: "100%"}}
+              cytoscape = cy
+            }
+          }
         />
         <ul id="btnlist">
           <li>
