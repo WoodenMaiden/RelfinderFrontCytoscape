@@ -9,6 +9,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import CenterFocusWeakIcon from '@mui/icons-material/CenterFocusWeak';
 
 import NodeDetails from "./components/NodeDetails";
 import CanvasButton from "./components/CanvasButtons";
@@ -234,10 +235,7 @@ function App() {
     dispatchState({
       type: "changePan",
       pan: { 
-        position: {
-          x: cytoscapeInstance.pan().x/2,
-          y: cytoscapeInstance.pan().y/2
-        },
+        position: cytoscapeInstance.pan(),
         zoom: cytoscapeInstance.zoom() + level 
       }
     })
@@ -318,12 +316,50 @@ function App() {
               resetEntry={
                 () => unFocusNodeAndNeighbors(cytoscape.elements())
               }
+              onFocusEntity={
+                (entry) => {
+                  const entity = cytoscape.$(`node[label = "${entry}"]`)[0]
+                  if (entity) {
+                    cytoscape.animate({
+                      center: {
+                        eles: [entity],
+                      },
+                      fit: {
+                        eles: entity.neighborhood(),
+                      },
+                      complete: () => dispatchState({
+                        type: "changePan",
+                        pan: {
+                          position: cytoscape.pan(),
+                          zoom: cytoscape.zoom()
+                        }
+                      })
+                    })
+                  }
+                }
+              }
               />
             </CanvasButton>
           </li>
           <li>
             <CanvasButton icon={<CameraAltIcon />} clickCallback={
               () => handleScreenshot(cytoscape)
+            }/>
+          </li>
+          <li>
+            <CanvasButton icon={<CenterFocusWeakIcon />} clickCallback={
+              () => cytoscape.animate({
+                pan: { x: 0, y: 0 },
+                zoom: 1,
+                complete: () => dispatchState({
+                  type: "changePan",
+                  pan: {
+                    position: { x: 0, y: 0 },
+                    zoom: 1
+                  }
+                })
+              })
+
             }/>
           </li>
           <li>
