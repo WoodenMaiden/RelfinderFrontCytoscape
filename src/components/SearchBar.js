@@ -11,6 +11,7 @@ import { useState } from "react";
 
 import SearchIcon from '@mui/icons-material/Search';
 import RotateLeftIcon from '@mui/icons-material/RotateLeft';
+import AdjustIcon from '@mui/icons-material/Adjust';
 
 export default function SearchBar(props) {
 
@@ -29,6 +30,8 @@ export default function SearchBar(props) {
         setEntryConfirmed(false)
         props.resetEntry?.apply()
     }
+
+    const onFocusEntity = props.onFocusEntity 
 
     return (
         <Stack direction="row" spacing={1}>
@@ -87,7 +90,7 @@ export default function SearchBar(props) {
             </span>
             
             <Button 
-                onClick={() => !entryConfirmed
+                onClick={() => !entryConfirmed && entry.trim()
                     ? confirmEntry(entry)
                     : resetEntry()
                 }
@@ -96,6 +99,15 @@ export default function SearchBar(props) {
                 variant="contained"
             >
                 { !entryConfirmed? <SearchIcon />: <RotateLeftIcon /> } 
+            </Button>
+            <Button 
+                disabled={!entryConfirmed}
+                onClick={_ => entry.trim()? onFocusEntity(entry): null}
+                sx={{flexGrow: 1}} 
+                color="info"
+                variant="contained"
+            >
+                <AdjustIcon/>
             </Button>
         </Stack>
     )
