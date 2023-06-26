@@ -89,7 +89,10 @@ export default function draw(graph, isFactorized = false, entryNodes = []) {
         })
     })
 
-    return { nodes, edges }
+    return { 
+        nodes: defaultLayout(nodes),
+        edges
+    }
 }
 
 export function focusNodeAndNeighbors(target, elements) {
@@ -110,3 +113,35 @@ export function unFocusNodeAndNeighbors(elements) {
         elt.style('line-opacity', 1);
     }
 } 
+
+export function defaultLayout(nodes) {
+
+    console.log(nodes)
+
+
+
+    return [
+        ...nodes.filter(node => node.classes.includes("EntryNode")).map(
+            (node, index, arr) => {
+                const angle = ((index) / arr.length) * 2 * Math.PI
+                console.log(angle)
+                return {
+                    ...node,
+                    position: {
+                        x: Math.cos(angle) * 500 + 1000,
+                        y: Math.sin(angle) * 500 + 550
+                    }
+                }
+            }
+        ),
+        ...nodes.filter(node => !node.classes.includes("EntryNode"))
+    ].map(
+        (node, index, arr) => node.classes.includes("EntryNode")? node: {
+            ...node,
+            position: {
+                x: Math.cos((index / arr.length) * 2 * Math.PI) * 400 + 1000,
+                y: Math.sin((index / arr.length) * 2 * Math.PI) * 400 + 550
+            }
+        }
+    )
+}

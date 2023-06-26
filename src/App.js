@@ -107,20 +107,6 @@ function App() {
     }
   )
 
-  // const layoutOptions = {
-  //   name: 'breadthfirst',
-
-  //   ready: function (e) {
-  //     e.cy.nodes().forEach(function (n) {
-  //         console.log(n)
-  //         n.position(n.position())
-  //     })
-  //   },
-
-  //   stop: function () {
-      
-  //   }
-  // }
 
   /*
   | | | | __ _ _ __   __| | | ___ _ __ ___
@@ -172,6 +158,7 @@ function App() {
               data : {
                 id: "No graph found",
               },
+              position: { x: 1000, y: 250 },
               classes: ['ErrorNode']
             }
           ]
@@ -196,6 +183,7 @@ function App() {
           data : {
             id: e.toString(),
           },
+          position: { x: 1000, y: 250 },
           classes: ['ErrorNode']
         }
       ])
@@ -277,11 +265,11 @@ function App() {
                       key={elt.detailsID} detailsID={elt.detailsID}
                       rmHandler={rmHandlerDetails}/>
         )}
-        <CytoscapeComponent stylesheet={cytoscapeStyle} //layout={layoutOptions}
+        <CytoscapeComponent stylesheet={cytoscapeStyle} pan={state.pan.position}
           elements={[ ...state.nodes, ...state.edges ]} wheelSensitivity={0.3}
           style={{width: "100%", height: "100%"}} panningEnabled={true}
           userPanningEnabled={true} userZoomingEnabled={true}
-          minZoom={0.1} maxZoom={2} pan={state.pan.position}
+          minZoom={0.1} maxZoom={2}
           cy={
             (cy) => {
               cy.pan(state.pan.position)
