@@ -1,6 +1,5 @@
 
 import { useReducer } from "react";
-import { CircularProgress } from "@mui/material";
 import CytoscapeComponent from "react-cytoscapejs";
 import { MultiDirectedGraph } from "graphology";
 import FileSaver from "file-saver"
@@ -26,6 +25,7 @@ import draw, {
 } from "./lib/draw";
 
 import cytoscapeStyle from "./cytoscape-style.json";
+import WaitingPannel from "./components/WaitingPannel";
 
 function App() {
   const [ state, dispatchState ] = useReducer(
@@ -143,6 +143,11 @@ function App() {
 
       console.log("fetching...")
 
+      dispatchState({
+        type: "changeLoading",
+        loading: true
+      })
+
       const fetchResult = await fetch(`${URL}/relfinder/${state.depth}`, requestOptions)
       const json = await fetchResult.json()
       graph.import(json)
@@ -194,6 +199,11 @@ function App() {
           position: { x: 0, y: 0 },
           zoom: 1
         }
+      })
+
+      dispatchState({
+        type: "changeLoading",
+        loading: false
       })
     }
   }
@@ -256,10 +266,7 @@ function App() {
 
 
       <div id="GraphCanvas">
-        <div style={{display: !state.loading? "none": "flex"}} id="loadingdiv">
-          <CircularProgress id="loading" color="success" />
-          <h3>Loading...</h3>
-        </div>
+        <WaitingPannel loading={state.loading}/>
         {state.nodeDetails?.map(
             elt => <NodeDetails x={elt.x} y={elt.y} data={elt.data}
                       key={elt.detailsID} detailsID={elt.detailsID}

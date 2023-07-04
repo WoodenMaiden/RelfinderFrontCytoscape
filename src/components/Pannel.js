@@ -12,8 +12,10 @@ import {
     Add,
     Remove,
     ChevronLeft,
-    CameraAlt
+    CameraAlt,
+    CenterFocusWeak
 } from '@mui/icons-material'
+
 import {
     Box,
     Switch,
@@ -150,18 +152,18 @@ export default function Pannel(props) {
                             <Box className="pannelShow" id="about" sx={{display: (value === 2)? "block": "none"}}>
                                 <h4>How to use</h4>
                                 <code>L click:</code> <p>Move camera or node</p>
-                                <code>R click:</code> <p>Move camera</p>
                                 <code>Hover node or {<Search sx={{backgroundColor: "#ffffff", borderRadius: "50%"}}/>}:</code> <p>See node neighbors</p>
                                 <code>Wheel or {<Add sx={{backgroundColor: "#ffffff", borderRadius: "50%"}}/>}/{<Remove sx={{backgroundColor: "#ffffff", borderRadius: "50%"}}/>}:</code> <p>Zoom/Dezoom</p>
                                 <code>{<CameraAlt sx={{backgroundColor: "#ffffff", borderRadius: "50%"}}/>}:</code> <p>Take a picture (PNG) of this graph</p>
+                                <code>{<CenterFocusWeak sx={{backgroundColor: "#ffffff", borderRadius: "50%"}}/>}:</code> <p>Center the view</p>
                                 <code><Switch /> :</code> <p>Choose wether to render litterals or not</p>
                             </Box>
 
                             <Box className="pannelShow" id="quote" sx={{display: (value === 3)? "block": "none"}}>
                                 <h4>Citations</h4>
                                 <code>Cytoscape JS:</code> <p>Cytoscape.js: a graph theory library for visualisation and analysis<br/><br/>Franz M, Lopes CT, Huck G, Dong Y, Sumer O, Bader GD</p>
-                                <code>Graphology JS:</code> <p>Guillaume Plique. (2021). Graphology, a robust and multipurpose Graph object for JavaScript.<br/><br/>Zenodo. <a target="_blank" href="https://doi.org/10.5281/zenodo.5681257">https://doi.org/10.5281/zenodo.5681257</a></p>
-                                <code>Sparql-http-client: </code> <p><a target="_blank" href="https://github.com/zazuko/sparql-http-client">https://github.com/zazuko/sparql-http-client</a></p>
+                                <code>Graphology JS:</code> <p>Guillaume Plique. (2021). Graphology, a robust and multipurpose Graph object for JavaScript.<br/><br/>Zenodo. <a target="_blank" rel="noreferrer" href="https://doi.org/10.5281/zenodo.5681257">https://doi.org/10.5281/zenodo.5681257</a></p>
+                                <code>Sparql-http-client: </code> <p><a target="_blank" rel="noreferrer" href="https://github.com/zazuko/sparql-http-client">https://github.com/zazuko/sparql-http-client</a></p>
                             </Box>
                         </Box>
                     </Box>

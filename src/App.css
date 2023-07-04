@@ -39,20 +39,3 @@ a:visited, a {
   bottom: 0;
   right: 10px;
 }
-
-#GraphCanvas #loadingdiv {
-  z-index: 4;
-  height: 100%;
-  width: 100%;
-  position: absolute;
-
-  align-items: center;
-  justify-content: center;
-
-  background-color: #111110;
-  opacity: 0.9
-}
-
-#GraphCanvas #loadingdiv #loading {
-  z-index: 5;
-}
