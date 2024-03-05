@@ -6,11 +6,11 @@ Relfinder is an implementation of the now deprecated [relfinder](http://www.visu
 
 ## Env variables
 
-| Name        | Required - default value      | Description                                                                            |
-|-------------|-------------------------------|----------------------------------------------------------------------------------------|
-| RFR_API_URL | :x: - `http://localhost:8080` | URL to a [RelfinderReformed API](https://github.com/WoodenMaiden/RelfinderReformedAPI) |
+| Name        | Required - default value                                                                                                       | Description                                                                            |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
+| RFR_API_URL | :x: - `""` (targets the same host useful when serving it from the [API](https://github.com/WoodenMaiden/RelfinderReformedAPI)) | URL to a [RelfinderReformed API](https://github.com/WoodenMaiden/RelfinderReformedAPI) |
 
-## Run locally with ``npm``
+## Run locally with `npm`
 
 ```bash
 npm run start

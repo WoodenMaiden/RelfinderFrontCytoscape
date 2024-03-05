@@ -3,7 +3,7 @@ import Config from "./config.json";
 // eslint-disable-next-line no-useless-concat
 const RFR_API_URL = !Config.RFR_API_URL.startsWith("$")
   ? Config.RFR_API_URL
-  : ( process.env.REACT_APP_RFR_API_URL ?? "http://localhost:8080");
+  : ( process.env.REACT_APP_RFR_API_URL ?? "");
 
 export const URL =
   RFR_API_URL.slice(-1) === "/" ? RFR_API_URL.slice(0, -1) : RFR_API_URL;
