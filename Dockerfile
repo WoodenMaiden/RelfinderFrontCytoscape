@@ -18,14 +18,14 @@ RUN npm ci --silent
 RUN npm run build
 
 
-FROM bitnami/nginx:1.25.5-debian-12-r0
+FROM nginx:latest
 
-COPY ./scripts/run.sh /opt/bitnami/scripts/nginx/run.sh
+ENV JSFOLDER=/usr/share/nginx/html/static/js/*.js
 
-COPY --from=build /app/build .
+COPY ./scripts/start-nginx.sh /usr/bin/start-nginx.sh
+RUN chmod +x /usr/bin/start-nginx.sh
+WORKDIR /usr/share/nginx/html
 
-USER root
-RUN chown 1001 -R /app
-USER 1001
+COPY --from=0 /app/build .
 
-CMD [ "/opt/bitnami/scripts/nginx/run.sh" ]
+ENTRYPOINT [ "start-nginx.sh" ]
