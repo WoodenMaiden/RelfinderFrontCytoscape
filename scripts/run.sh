@@ -16,21 +16,35 @@ set -o pipefail
 # Load NGINX environment variables
 . /opt/bitnami/scripts/nginx-env.sh
 
-mkdir -p /opt/bitnami/nginx/conf/server_blocks
+mkdir -pv /opt/bitnami/nginx/conf/server_blocks
 
-cat << EOF > /opt/bitnami/nginx/conf/server_blocks/rfr_server.conf
+if [ -z "${DISABLE_REDIRECT}" ]; then
+    info "Configuring NGINX to redirect /api requests to ${RFR_API_URL}"
+
+    if [ -z "${RFR_API_URL}" ]; then 
+        error "env variable RFR_API_URL is not set. Please set it to the URL you want to redirect /api requests to."
+        error "if the api is on the same host as the frontend, set DISABLE_REDIRECT to true."
+        exit 1
+    fi
+
+    cat << EOF > /opt/bitnami/nginx/conf/server_blocks/rfr_server.conf
 server {
-    listen 0.0.0.0:8080;
+    listen 0.0.0.0:${NGINX_HTTP_PORT_NUMBER:-8080};
     server_name _;
 
     root /app;
 
     location /api {
-        proxy_pass ${RFR_API_URL};
+        rewrite ^/api(.*)\$ \$1 break;
+        return 301 ${RFR_API_URL:-"http://localhost:8080/"}\$1;
     }
 }
 
 EOF
+else
+    info "/api will target the same host, as DISABLE_REDIRECT is set"
+fi
+
 
 info "** Starting NGINX **"
 exec "${NGINX_SBIN_DIR}/nginx" -c "$NGINX_CONF_FILE" -g "daemon off;"
