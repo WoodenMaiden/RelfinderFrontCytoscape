@@ -5,7 +5,7 @@
 # shellcheck disable=SC1091
 
 set -o errexit
-set -o nounset
+# set -o nounset
 set -o pipefail
 # set -o xtrace # Uncomment this line for debugging purposes
 
@@ -23,7 +23,7 @@ if [ -z "${DISABLE_REDIRECT}" ]; then
 
     if [ -z "${RFR_API_URL}" ]; then 
         error "env variable RFR_API_URL is not set. Please set it to the URL you want to redirect /api requests to."
-        error "if the api is on the same host as the frontend, set DISABLE_REDIRECT to true."
+        error "if the api is on the same host as the frontend, set the DISABLE_REDIRECT env variable."
         exit 1
     fi
 
