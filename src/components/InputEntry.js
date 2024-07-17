@@ -47,8 +47,8 @@ export default function InputEntry(props) {
 
             const fetchLabels = await (await fetch(`${URL}/labels`, requestOptions)).json()
 
-            setSuggestions([ ...fetchLabels.labels.map(
-                (elt) => { return { s: elt.s.value, label: elt.label?.value }}
+            setSuggestions([ ...fetchLabels.map(
+                (elt) => { return { subject: elt.subject.value, label: elt.label?.value }}
             )])
         }, 2000)
     }
@@ -68,8 +68,8 @@ export default function InputEntry(props) {
         sugBox.style.display = 'none'
         setSuggestions([])
         setSelectedSuggestion(true)
-        setEntry(sug.s)
-        changeHandler(id, sug.s)
+        setEntry(sug.subject)
+        changeHandler(id, sug.subject)
     }
 
     function click(e) {
@@ -162,8 +162,8 @@ export default function InputEntry(props) {
                                     backgroundColor: '#9e9e9e'
                                 }
                             }}
-                            key={sug.s+sug.label}>
-                                {(sug.label)? `${sug.label} - ${sug.s}`: sug.s }
+                            key={sug.subject+sug.label}>
+                                {(sug.label)? `${sug.label} - ${sug.subject}`: sug.subject }
                         </Typography>
                     )}
                 </Stack>
