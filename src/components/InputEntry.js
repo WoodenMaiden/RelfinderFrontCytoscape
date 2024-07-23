@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useReducer, useRef } from 'react';
 import { 
     Box,
     Stack, 
     Typography, 
-    CircularProgress,
     TextField,
-    Button
+    Button,
+    Snackbar,
+    CircularProgress,
+    Alert
 } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -16,43 +18,74 @@ export default function InputEntry(props) {
     const changeHandler = props.changeHandler
     const id = props.id
 
-    const [ timeoutID, setTimeoutID ] = useState(setTimeout(()=> { return true;}, 0))
-    const [ selectedSuggestion, setSelectedSuggestion ] = useState(false) //this will prevent from fetching suggestions when selecting one
-    const [ suggestions, setSuggestions ] = useState([])
-    const [ entry, setEntry ] = useState("")
+    const timeoutIdRef = useRef(null);
+
+    const [state, dispatchState ] = useReducer( 
+        (state, action) => {
+            switch(action.type) {
+                case "setEntry":
+                    return { 
+                        ...state, 
+                        entry: action.value,
+                        labelFetchOngoing: true
+                    }
+                
+                case "setSugestions":
+                    return {
+                        ...state,
+                        suggestions: action.value.map(
+                            elt => ({ subject: elt.subject.value, label: elt.label?.value })
+                        ),
+                        error: `${action.error},\n\nThis error has been logged to your browser's console`,
+                        labelFetchOngoing: false,
+                    }
+
+                case "selectSuggestion": 
+                    return { 
+                        ...state, 
+                        entry: action.value,
+                        labelFetchOngoing: false,
+                        suggestions: []
+                    }
+
+                case "discardSnackbar":
+                    return { ...state, error: null }
+            
+                default:
+                    return { ...state, error: `Unknown action type ${action.type}`}
+            }
+        } , {
+            entry: "",
+            labelFetchOngoing: false,
+            suggestions: [],
+            error: null,
+        }
+    )
 
 
-    // returns the timeout id in order to clear it with setTimeout()
-    function getLabelsOnEntry() {
+    async function getLabels(inputText, dispatchCallback) {
+        let error = null
+        let value = []
 
-        //TODO pass aborter to function in timeout
-        return setTimeout(async () => {
-            const sugBox = document.getElementById(`suggestions${id}`)
-            setSuggestions([]) // to trigger loading animation
-            sugBox.style.display = 'block'
-
-            const myHeaders = new Headers();
-            myHeaders.append("Content-Type", "application/json");
-
-            const raw = JSON.stringify({
-                "node": entry
-            });
-
-            const requestOptions = {
+        try {
+            const fetchLabels = await fetch(`${URL}/labels`, {
                 method: "POST",
-                headers: myHeaders,
-                body: raw,
+                headers: new Headers({ "Content-Type": "application/json" }),
+                body: JSON.stringify({
+                    "node": inputText
+                }),
                 redirect: "follow",
-            };
+            })
 
-            const fetchLabels = await (await fetch(`${URL}/labels`, requestOptions)).json()
+            value = await fetchLabels.json()
+                
+        } catch (exception) {
+            error = "Failed to get labels and URIs: " + JSON.stringify(exception)
+            console.error(error)
+        }
 
-            setSuggestions([ ...fetchLabels.map(
-                (elt) => { return { subject: elt.subject.value, label: elt.label?.value }}
-            )])
-        }, 2000)
+        dispatchCallback({ type: "setSugestions", value, error })
     }
-
 
 /*
      _   _                 _ _
@@ -62,72 +95,63 @@ export default function InputEntry(props) {
 	|_| |_|\__,_|_| |_|\__,_|_|\___|_|  |___/
 */
 
-    function selectSuggestion(sug) {
-        const sugBox = document.getElementById(`suggestions${id}`)
+    function handleInputChange(event) {
+        const value = event.target.value.trim()
+        
+        if (timeoutIdRef.current) {
+            clearTimeout(timeoutIdRef.current)
+        }
+        
+        dispatchState({
+            type: "setEntry",
+            value
+        })
 
-        sugBox.style.display = 'none'
-        setSuggestions([])
-        setSelectedSuggestion(true)
-        setEntry(sug.subject)
-        changeHandler(id, sug.subject)
-    }
+        if (value !== "") {
+            timeoutIdRef.current = setTimeout(() => getLabels(value, dispatchState), 2000)
 
-    function click(e) {
-        if (
-            typeof e.target.className === "string" // if you click on a svg, they have not a "string" type
-            && !e.target.className.includes('suggestionItem') 
-            ){ 
-
-            document.getElementById(`suggestions${id}`).style.display = 'none'
-            setSuggestions([]);
+            changeHandler(id, value)
         }
     }
 
-    function entryChanges(event) {
-        const text = event.target.value.trim()
+    function handleSuggestionClick({ subject }) {
+        dispatchState({
+            type: "selectSuggestion",
+            value: subject,
+        })
 
-        setEntry(text)
-        changeHandler(id, text)
+        changeHandler(id, subject)
     }
 
-
-/*
-     _   _             _ 
-    | | | | ___   ___ | | _ ___
-    | |_| |/ _ \ / _ \| |/ / __|
-    |  _  | (_) | (_) |   <\__ \
-    |_| |_|\___/ \___/|_|\_\___/
-*/
-
-    useEffect(() => {
-        clearTimeout(timeoutID)
-
-        if (entry.trim() === "") {
-            document.getElementById(`suggestions${id}`).style.display = 'none'
-            setSuggestions([])
-        } else {
-            //if the value hasn't been filled via from the suggestion list fetch selections,
-            if(!selectedSuggestion) setTimeoutID(getLabelsOnEntry())
-            else setSelectedSuggestion(false) //else we do nothing to avoid another fetch() and reset the value
-        }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [entry, id])
-
-    useEffect(() => {
-        document.addEventListener('click', click, true)
-        return () => document.removeEventListener('click', click, true);
-    })
-
-    props.clearEvent.addEventListener("clear", () => setEntry(""))
+    function handleCloseSnackbar() {
+        dispatchState({ type: "discardSnackbar" })
+    }
 
     return (
         <Box>
+            <Snackbar 
+                anchorOrigin={{ vertical: "top", horizontal: "right" }}
+                open={state.error && !state.labelFetchOngoing}
+                autoHideDuration={10000}
+                message={state.error}
+                onClose={handleCloseSnackbar}
+            >
+                <Alert 
+                    severity="error" 
+                    variant="filled" 
+                    onClose={handleCloseSnackbar} 
+                    sx={{ 
+                        width: '100%' 
+                    }}
+                >
+                    {state.error}
+                </Alert>
+            </Snackbar>
             <Stack direction="row" spacing={1}>
                 <TextField
                     variant="filled"
-                    onChange={entryChanges}
-                    value={entry}
+                    onChange={handleInputChange}
+                    value={state.entry}
                     placeholder="URI or label"
                     fullWidth
                     style={{
@@ -142,30 +166,31 @@ export default function InputEntry(props) {
                 zIndex: 99999,
                 backgroundColor: '#ffffff', 
                 position: 'absolute',
-                display: 'none',
                 overflowY: 'scroll',
                 maxHeight: '80px',
                 minHeight: '10px',
             }}>
-                <Stack alignItems={(suggestions.length <= 0)? 'center': 'flex-start' } >
-                    {(suggestions.length <= 0)
-                    ? <CircularProgress color='secondary'/>
-                    : suggestions.map(
-                        sug =>  <Typography className='suggestionItem' onClick={() => selectSuggestion(sug)}
-                            sx={{
-                                cursor: 'pointer',
-                                textOverflow: 'ellipsis',
-                                width: '100%',
-                                overflow: 'hidden',
-                                whiteSpace: 'nowrap',
-                                '&:hover': {
-                                    backgroundColor: '#9e9e9e'
-                                }
-                            }}
-                            key={sug.subject+sug.label}>
-                                {(sug.label)? `${sug.label} - ${sug.subject}`: sug.subject }
-                        </Typography>
-                    )}
+                <Stack alignItems={(state.suggestions.length <= 0)? 'center': 'flex-start' } >
+                    {
+                    state.labelFetchOngoing
+                        ? <CircularProgress color='secondary'/>
+                        : state.suggestions.map(
+                            sug =>  <Typography className='suggestionItem' onClick={() => handleSuggestionClick(sug)}
+                                sx={{
+                                    cursor: 'pointer',
+                                    textOverflow: 'ellipsis',
+                                    width: '100%',
+                                    overflow: 'hidden',
+                                    whiteSpace: 'nowrap',
+                                    '&:hover': {
+                                        backgroundColor: '#9e9e9e'
+                                    }
+                                }}
+                                key={sug.subject+sug.label}>
+                                    {(sug.label)? `${sug.label} - ${sug.subject}`: sug.subject }
+                            </Typography>
+                        )
+                    }
                 </Stack>
             </Box>
         </Box>
