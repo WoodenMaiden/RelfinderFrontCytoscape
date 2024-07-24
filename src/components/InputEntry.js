@@ -12,11 +12,7 @@ import CloseIcon from '@mui/icons-material/Close';
 
 import { URL } from "../variables";
 
-export default function InputEntry(props) {
-    const rmHandler =  props.rmHandler
-    const changeHandler = props.changeHandler
-    const id = props.id 
-
+export default function InputEntry({ id, rmHandler, changeHandler, clearEvent }) {
     const timeoutIdRef = useRef(null);
 
     const [state, dispatchState ] = useReducer( 
@@ -47,6 +43,15 @@ export default function InputEntry(props) {
 
                 case "discardSnackbar":
                     return { ...state, error: null }
+
+                case "clean":
+                case "clear":
+                    return { 
+                        ...state, 
+                        entry: "",
+                        labelFetchOngoing: false,
+                        suggestions: [],
+                    }
             
                 default:
                     return { ...state, error: `Unknown action type ${action.type}`}
@@ -92,7 +97,9 @@ export default function InputEntry(props) {
 	|_| |_|\__,_|_| |_|\__,_|_|\___|_|  |___/
 */
 
-    function handleInputChange(event, text, reason) {
+    clearEvent.addEventListener("clear", () => dispatchState({ type: "clear" }))
+
+    function handleInputChange(_e, text, reason) {
         const value = text?.trim() ?? ""
         
         if (timeoutIdRef.current)
