@@ -1,21 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Stack, Button } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import RotateLeftIcon from '@mui/icons-material/RotateLeft';
 import DeviceHubIcon from '@mui/icons-material/DeviceHub';
 
 import InputEntry from './InputEntry';
-import { v4 } from "uuid";
 
 import './inputForm.css'
 
 export default function InputForm(props) {
     const MININPUT = 2
+    const inputCounter = useRef(MININPUT - 1)
     const [inputArray, setInputArray] = useState([{
-        id: v4(),
+        id: 0,
         entry: "",
     },{
-        id: v4(),
+        id: 1,
         entry: "",
     }])
 
@@ -46,8 +46,9 @@ export default function InputForm(props) {
     }
 
     function add() {
+        inputCounter.current++
         const newInputs = [...inputArray, {
-            id: v4(),
+            id: inputCounter.current,
             entry: "",
         }]
         setInputArray(newInputs)
