@@ -1,13 +1,12 @@
 import { useReducer, useRef } from 'react';
 import { 
     Box,
-    Stack, 
-    Typography, 
+    Stack,  
     TextField,
     Button,
     Snackbar,
-    CircularProgress,
-    Alert
+    Alert,
+    Autocomplete
 } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -16,7 +15,7 @@ import { URL } from "../variables";
 export default function InputEntry(props) {
     const rmHandler =  props.rmHandler
     const changeHandler = props.changeHandler
-    const id = props.id
+    const id = props.id 
 
     const timeoutIdRef = useRef(null);
 
@@ -27,7 +26,7 @@ export default function InputEntry(props) {
                     return { 
                         ...state, 
                         entry: action.value,
-                        labelFetchOngoing: true
+                        labelFetchOngoing: action.value !== ""
                     }
                 
                 case "setSugestions":
@@ -36,7 +35,7 @@ export default function InputEntry(props) {
                         suggestions: action.value.map(
                             elt => ({ subject: elt.subject.value, label: elt.label?.value })
                         ),
-                        error: `${action.error},\n\nThis error has been logged to your browser's console`,
+                        error: action.error,
                         labelFetchOngoing: false,
                     }
 
@@ -44,8 +43,6 @@ export default function InputEntry(props) {
                     return { 
                         ...state, 
                         entry: action.value,
-                        labelFetchOngoing: false,
-                        suggestions: []
                     }
 
                 case "discardSnackbar":
@@ -95,32 +92,45 @@ export default function InputEntry(props) {
 	|_| |_|\__,_|_| |_|\__,_|_|\___|_|  |___/
 */
 
-    function handleInputChange(event) {
-        const value = event.target.value.trim()
+    function handleInputChange(event, text, reason) {
+        const value = text?.trim() ?? ""
         
-        if (timeoutIdRef.current) {
+        if (timeoutIdRef.current)
             clearTimeout(timeoutIdRef.current)
-        }
+
+        switch (reason) {
+            case "input":
+                dispatchState({ type: "setEntry", value })
         
-        dispatchState({
-            type: "setEntry",
-            value
-        })
+                if (value !== "")
+                    timeoutIdRef.current = setTimeout(() => getLabels(value, dispatchState), 2000)
 
-        if (value !== "") {
-            timeoutIdRef.current = setTimeout(() => getLabels(value, dispatchState), 2000)
+                break;
 
-            changeHandler(id, value)
+            case "clear":
+                dispatchState({ type: "setEntry", value: "" })
+                break;
+
+            case "reset": // that is triggered when selecting a suggestion so we do nothing
+                break;
+
+            default: 
+                console.error("Unhandled reason", reason)
+                break;
         }
+
+        changeHandler(id, value)
     }
 
-    function handleSuggestionClick({ subject }) {
-        dispatchState({
-            type: "selectSuggestion",
-            value: subject,
-        })
+    function handleSuggestionSelect(_e, { subject }, reason, _details) { 
+        if (reason === "selectOption") {
+            dispatchState({
+                type: "selectSuggestion",
+                value: subject,
+            })
 
-        changeHandler(id, subject)
+            changeHandler(id, subject)
+        }
     }
 
     function handleCloseSnackbar() {
@@ -145,54 +155,42 @@ export default function InputEntry(props) {
                     }}
                 >
                     {state.error}
+                    <br/>
+                    This error has been logged to your browser's console.
                 </Alert>
             </Snackbar>
             <Stack direction="row" spacing={1}>
-                <TextField
-                    variant="filled"
-                    onChange={handleInputChange}
+                <Autocomplete
+                    freeSolo
+                    handleHomeEndKeys
+                    options={state.suggestions}
+                    loading={state.labelFetchOngoing}
+                    onInputChange={handleInputChange}
                     value={state.entry}
-                    placeholder="URI or label"
-                    fullWidth
-                    style={{
-                        flexGrow: 8,
+                    getOptionLabel={_ => state.entry} // to always show what's about to be submitted
+                    renderOption={(props, {subject, label}, state ) => (
+                        <li {...props}>
+                            {label ?? subject ?? ""}
+                        </li>
+                    )} // to show the label if available but insert the URI anyways
+                    noOptionsText='Could not find labels/URIs from submitted text'
+                    filterOptions={(x) => x} //to avoid any filtering
+                    sx={{
+                        flexGrow: 50,
                     }}
-                />
+                    onChange={handleSuggestionSelect} // to set the uri as the value when selecting a suggestion
+                    renderInput={(params) => (<TextField
+                        {...params}
+                        variant="filled"
+                        value={state.entry}
+                        placeholder="URI or label"
+                        fullWidth
+                    />)}
+                />                
                 <Button onClick={() => rmHandler(id)} variant="outlined" sx={{flexGrow: 1}}>
                     <CloseIcon />
                 </Button>
             </Stack>
-            <Box id={`suggestions${id}`} sx={{
-                zIndex: 99999,
-                backgroundColor: '#ffffff', 
-                position: 'absolute',
-                overflowY: 'scroll',
-                maxHeight: '80px',
-                minHeight: '10px',
-            }}>
-                <Stack alignItems={(state.suggestions.length <= 0)? 'center': 'flex-start' } >
-                    {
-                    state.labelFetchOngoing
-                        ? <CircularProgress color='secondary'/>
-                        : state.suggestions.map(
-                            sug =>  <Typography className='suggestionItem' onClick={() => handleSuggestionClick(sug)}
-                                sx={{
-                                    cursor: 'pointer',
-                                    textOverflow: 'ellipsis',
-                                    width: '100%',
-                                    overflow: 'hidden',
-                                    whiteSpace: 'nowrap',
-                                    '&:hover': {
-                                        backgroundColor: '#9e9e9e'
-                                    }
-                                }}
-                                key={sug.subject+sug.label}>
-                                    {(sug.label)? `${sug.label} - ${sug.subject}`: sug.subject }
-                            </Typography>
-                        )
-                    }
-                </Stack>
-            </Box>
         </Box>
     )
 }
